@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Tech — Tracker Ore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --purple: #6B52F5;
+    --purple-light: #F3F1FF;
+    --purple-mid: #C4BAF8;
+    --purple-dark: #3C3489;
+    --border: #E5E4E8;
+    --text: #1A1A2E;
+    --text-muted: #6B6B80;
+    --bg: #FFFFFF;
+    --bg-soft: #F8F8FB;
+    --green-bg: #E1F5EE;
+    --green-text: #0F6E56;
+    --amber-bg: #FAEEDA;
+    --amber-text: #854F0B;
+    --red-bg: #FCEBEB;
+    --red-text: #A32D2D;
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: #F0EFF5; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
+  .app { background: var(--bg); border-radius: 16px; width: 100%; max-width: 600px; overflow: hidden; border: 1px solid var(--border); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* HEADER */
+  .hdr { display: flex; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); gap: 10px; background: var(--bg); }
+  .logo { display: flex; flex-direction: column; line-height: 1; }
+  .logo-one { font-size: 20px; font-weight: 700; color: var(--purple); letter-spacing: -1px; }
+  .logo-tech { font-size: 8px; font-weight: 700; letter-spacing: 4px; color: var(--text-muted); margin-top: 1px; }
+  .hdr-title { font-size: 13px; color: var(--text-muted); margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--border); }
+  .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .sync-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+  .sync-live { background: var(--green-bg); color: var(--green-text); }
+  .sync-saving { background: var(--amber-bg); color: var(--amber-text); }
+  .sync-err { background: var(--red-bg); color: var(--red-text); }
+
+  /* BODY */
+  .body { padding: 20px; }
+
+  /* BUTTONS */
+  .btn-sm { padding: 7px 13px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; transition: all .12s; font-family: inherit; }
+  .btn-sm:hover { background: var(--bg-soft); color: var(--text); }
+  .btn-main { width: 100%; padding: 13px; background: var(--purple); color: #fff; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity .15s; font-family: inherit; letter-spacing: .01em; }
+  .btn-main:hover { opacity: .88; }
+  .btn-main:disabled { opacity: .3; cursor: default; }
+  .btn-back { background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; gap: 4px; padding: 0; font-family: inherit; }
+  .btn-back:hover { color: var(--text); }
+  .btn-add { padding: 9px 16px; background: var(--purple); color: #fff; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; font-family: inherit; }
+  .btn-add:hover { opacity: .9; }
+
+  /* LABELS */
+  .lbl { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: block; }
+
+  /* PERSON GRID */
+  .person-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 20px; }
+  .p-btn { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); cursor: pointer; padding: 12px 8px 10px; text-align: center; transition: all .15s; }
+  .p-btn:hover { border-color: var(--purple); background: var(--purple-light); }
+  .p-btn.sel { border: 2px solid var(--purple); background: var(--purple-light); }
+  .p-btn .av { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .p-btn .pn { font-size: 12px; font-weight: 500; color: var(--text); }
+  .p-btn.sel .pn { color: var(--purple-dark); }
+
+  /* FIELD */
+  .field { margin-bottom: 16px; }
+  .field input, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text); outline: none; transition: border-color .15s; font-family: inherit; }
+  .field input:focus, .field select:focus { border-color: var(--purple); }
+
+  /* PROJECT ROWS */
+  .proj-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); margin-bottom: 6px; transition: all .15s; }
+  .proj-row.has-hours { border-color: var(--purple); background: var(--purple-light); }
+  .proj-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 99px; letter-spacing: .03em; flex-shrink: 0; }
+  .proj-label { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+  .proj-label.sub { color: var(--text-muted); }
+  .hctrl { display: flex; align-items: center; gap: 8px; }
+  .hbtn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-soft); cursor: pointer; font-size: 18px; line-height: 1; color: var(--text); display: flex; align-items: center; justify-content: center; transition: all .12s; padding: 0; font-family: inherit; }
+  .hbtn:hover { background: var(--purple-light); border-color: var(--purple); color: var(--purple); }
+  .hval { font-size: 14px; font-weight: 600; min-width: 34px; text-align: center; color: var(--text-muted); }
+  .hval.on { color: var(--purple); }
+
+  /* TOTAL BAR */
+  .tot-bar { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; background: var(--purple-light); border: 1px solid var(--purple-mid); border-radius: var(--radius-sm); margin: 14px 0 16px; }
+  .tot-bar span { font-size: 13px; font-weight: 500; color: #534AB7; }
+  .tot-bar strong { font-size: 19px; font-weight: 700; color: var(--purple-dark); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 3px; background: var(--bg-soft); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; color: var(--text-muted); border: none; background: none; transition: all .15s; font-family: inherit; }
+  .tab.active { background: var(--bg); color: var(--purple); border: 1px solid var(--border); }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filters select { padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; outline: none; font-family: inherit; }
+  .filters select:focus { border-color: var(--purple); }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 16px; }
+  .mc { background: var(--bg-soft); border-radius: var(--radius-sm); padding: 13px; }
+  .mc .ml { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .mc .mv { font-size: 26px; font-weight: 700; color: var(--text); }
+
+  /* TABLE */
+  .tbl-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--bg-soft); padding: 9px 14px; text-align: left; font-weight: 700; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg-soft); }
+  .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; letter-spacing: .02em; }
+
+  /* SUCCESS */
+  .ok-wrap { text-align: center; padding: 3rem 1.5rem; }
+  .ok-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--green-bg); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 28px; color: var(--green-text); }
+  .ok-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .ok-wrap p { font-size: 14px; color: var(--text-muted); margin-bottom: 2rem; }
+  .ok-btn { display: inline-block; padding: 12px 32px; background: var(--purple); color: #fff; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+  /* PROJECT MANAGEMENT */
+  .pm-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 6px; background: var(--bg); }
+  .del-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px 6px; border-radius: 6px; transition: all .1s; font-size: 16px; }
+  .del-btn:hover { color: var(--red-text); background: var(--red-bg); }
+  .add-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .add-row input { flex: 1; min-width: 100px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--bg); color: var(--text); outline: none; font-family: inherit; }
+  .add-row input:focus { border-color: var(--purple); }
+
+  .hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+  .empty { text-align: center; padding: 2.5rem; color: var(--text-muted); font-size: 14px; }
+  .divider { height: 1px; background: var(--border); margin: 18px 0; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HOME -->
+  <div id="v-home" class="view active">
+    <div class="hdr">
+      <div class="logo"><div class="logo-one">one</div><div class="logo-tech">TECH</div></div>
+      <span class="hdr-title">Tracker ore</span>
+      <div class="hdr-right">
+        <span class="sync-badge sync-live" id="sync-badge">● live</span>
+        <button class="btn-sm" onclick="gv('v-projects')"><i class="ti ti-settings"></i> Progetti</button>
+        <button class="btn-sm" onclick="gv('v-dash')"><i class="ti ti-chart-bar"></i> Riepilogo</button>
+      </div>
+    </div>
+    <div class="body">
+      <span class="lbl">Chi sei?</span>
+      <div class="person-grid" id="person-grid"></div>
+      <div class="field"><span class="lbl">Data</span><input type="date" id="inp-date"></div>
+      <button class="btn-main" id="btn-next" disabled onclick="goEntry()">Inserisci ore →</button>
+    </div>
+  </div>
+
+  <!-- ENTRY -->
+  <div id="v-entry" class="view">
+    <div class="hdr">
+      <button class="btn-back" onclick="gv('v-home')"><i class="ti ti-arrow-left"></i> Indietro</button>
+      <span class="hdr-title" id="entry-title">—</span>
+    </div>
+    <div class="body">
+      <span class="lbl" style="margin-bottom:10px">Ore per progetto</span>
+      <div id="proj-list"></div>
+      <div class="tot-bar"><span>Totale ore oggi</span><strong id="tot-display">0h</strong></div>
+      <button class="btn-main" onclick="doSave()">Salva ore</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="v-ok" class="view">
+    <div class="hdr">
+      <div class="logo"><div class="logo-one">one</div><div class="logo-tech">TECH</div></div>
+    </div>
+    <div class="body">
+      <div class="ok-wrap">
+        <div class="ok-icon"><i class="ti ti-check"></i></div>
+        <h2>Ore salvate!</h2>
+        <p id="ok-msg">—</p>
+        <button class="ok-btn" onclick="gv('v-home')">Torna alla home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div id="v-projects" class="view">
+    <div class="hdr">
+      <button class="btn-back" onclick="gv('v-home')"><i class="ti ti-arrow-left"></i> Indietro</button>
+      <span class="hdr-title">Impostazioni</span>
+    </div>
+    <div class="body">
+      <span class="lbl">Team</span>
+      <div id="team-mgmt"></div>
+      <div class="add-row" style="margin-top:12px">
+        <input type="text" id="new-member" placeholder="Nome del nuovo membro...">
+        <button class="btn-add" onclick="addMember()"><i class="ti ti-user-plus"></i> Aggiungi</button>
+      </div>
+      <div class="divider"></div>
+      <span class="lbl">Progetti attivi</span>
+      <div id="proj-mgmt"></div>
+      <div class="add-row" style="margin-top:12px">
+        <input type="text" id="new-name" placeholder="Nome progetto...">
+        <input type="text" id="new-group" placeholder="Gruppo (es. AESSEFIN)">
+        <button class="btn-add" onclick="addProj()"><i class="ti ti-plus"></i> Aggiungi</button>
+      </div>
+      <p class="hint">Il gruppo raggruppa i sotto-progetti (opzionale — lascia vuoto se il progetto è indipendente)</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="v-dash" class="view">
+    <div class="hdr">
+      <button class="btn-back" onclick="gv('v-home')"><i class="ti ti-arrow-left"></i> Indietro</button>
+      <span class="hdr-title">Riepilogo ore</span>
+      <div class="hdr-right">
+        <button class="btn-sm" onclick="doExport()"><i class="ti ti-download"></i> Esporta CSV</button>
+      </div>
+    </div>
+    <div class="body">
+      <div class="tabs">
+        <button class="tab active" id="tab-p" onclick="setTab('p')">Per progetto</button>
+        <button class="tab" id="tab-t" onclick="setTab('t')">Per persona</button>
+        <button class="tab" id="tab-l" onclick="setTab('l')">Log completo</button>
+      </div>
+      <div class="filters">
+        <select id="f-month" onchange="renderDash()">
+          <option value="">Tutti i mesi</option>
+          <option value="2026-05">Maggio 2026</option>
+          <option value="2026-06">Giugno 2026</option>
+          <option value="2026-07">Luglio 2026</option>
+        </select>
+        <select id="f-person" onchange="renderDash()"><option value="">Tutto il team</option></select>
+        <select id="f-proj" onchange="renderDash()"><option value="">Tutti i progetti</option></select>
+      </div>
+      <div id="dash-body"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DEFAULT_TEAM = [
+  { name: "Nishant",   bg: "#EEEDFE", tc: "#3C3489" },
+  { name: "Pranav",    bg: "#E1F5EE", tc: "#085041" },
+  { name: "Luca",      bg: "#FCE4D6", tc: "#712B13" },
+  { name: "Marat",     bg: "#FAEEDA", tc: "#633806" },
+  { name: "Benedetta", bg: "#FBEAF0", tc: "#72243E" },
+  { name: "Deniz",     bg: "#E6F1FB", tc: "#0C447C" },
+  { name: "Lorenzo",   bg: "#EAF3DE", tc: "#27500A" },
+];
+const EXTRA_COLORS = [
+  ["#F1EFE8","#2C2C2A"],["#EEEDFE","#26215C"],["#E1F5EE","#04342C"],
+  ["#FAECE7","#4A1B0C"],["#FBEAF0","#4B1528"],["#E6F1FB","#042C53"],
+  ["#EAF3DE","#173404"],["#FAEEDA","#412402"],["#FCEBEB","#501313"],
+];
+
+const DEF_PROJ = [
+  { id: "acta",       name: "ACTA",           group: "ACTA" },
+  { id: "aess_mkt",   name: "Marketing",      group: "AESSEFIN" },
+  { id: "aess_sito",  name: "Sito",           group: "AESSEFIN" },
+  { id: "aess_be",    name: "Back End",       group: "AESSEFIN" },
+  { id: "aess_infra", name: "Infrastrutture", group: "AESSEFIN" },
+  { id: "paul",       name: "PAUL E SHARK",   group: "PAUL E SHARK" },
+  { id: "aws",        name: "AWS GENERAL",    group: "AWS GENERAL" },
+];
+
+const GP = {
+  "ACTA":          ["#EEEDFE", "#3C3489"],
+  "AESSEFIN":      ["#E1F5EE", "#085041"],
+  "PAUL E SHARK":  ["#FCE4D6", "#712B13"],
+  "AWS GENERAL":   ["#FAEEDA", "#633806"],
+};
+function gc(g) { return GP[g] || ["#F1EFE8", "#444441"]; }
+
+const KP = "ot_proj_v3", KD = "ot_data_v3", KT = "ot_team_v1";
+let selPerson = null, hours = {}, activeTab = "p";
+let projects = [], entries = [], TEAM = [];
+
+function load() {
+  try { projects = JSON.parse(localStorage.getItem(KP)) || JSON.parse(JSON.stringify(DEF_PROJ)); } catch(e) { projects = JSON.parse(JSON.stringify(DEF_PROJ)); }
+  try { entries  = JSON.parse(localStorage.getItem(KD)) || []; } catch(e) { entries = []; }
+  try { TEAM = JSON.parse(localStorage.getItem(KT)) || JSON.parse(JSON.stringify(DEFAULT_TEAM)); } catch(e) { TEAM = JSON.parse(JSON.stringify(DEFAULT_TEAM)); }
+}
+function saveProj() { try { localStorage.setItem(KP, JSON.stringify(projects)); } catch(e) {} }
+function saveTeam() { try { localStorage.setItem(KT, JSON.stringify(TEAM)); } catch(e) {} }
+function saveData() {
+  setSB("saving");
+  try { localStorage.setItem(KD, JSON.stringify(entries)); setSB("live"); }
+  catch(e) { setSB("err"); }
+}
+function setSB(s) {
+  const b = document.getElementById("sync-badge"); if (!b) return;
+  const m = { live: ["sync-live", "● live"], saving: ["sync-saving", "⟳ salvataggio..."], err: ["sync-err", "⚠ errore"] };
+  const [c, t] = m[s] || m.live;
+  b.className = "sync-badge " + c; b.textContent = t;
+}
+
+function buildPersonGrid() {
+  const el = document.getElementById("person-grid"); if (!el) return;
+  el.innerHTML = "";
+  TEAM.forEach(p => {
+    const b = document.createElement("button");
+    b.className = "p-btn"; b.id = "pb-" + p.name;
+    b.innerHTML = `<div class="av" style="background:${p.bg};color:${p.tc}">${p.name.slice(0,2).toUpperCase()}</div><div class="pn">${p.name}</div>`;
+    b.onclick = () => pickPerson(p.name);
+    el.appendChild(b);
+  });
+  const sel = document.getElementById("f-person"); if (!sel) return;
+  sel.innerHTML = '<option value="">Tutto il team</option>';
+  TEAM.forEach(p => { const o = document.createElement("option"); o.value = p.name; o.textContent = p.name; sel.appendChild(o); });
+}
+
+function pickPerson(n) {
+  selPerson = n;
+  document.querySelectorAll(".p-btn").forEach(b => b.classList.remove("sel"));
+  const pb = document.getElementById("pb-" + n); if (pb) pb.classList.add("sel");
+  checkBtn();
+}
+function checkBtn() {
+  const d = document.getElementById("inp-date");
+  const btn = document.getElementById("btn-next");
+  if (btn) btn.disabled = !(selPerson && d && d.value);
+}
+
+function goEntry() {
+  const di = document.getElementById("inp-date"); if (!di) return;
+  const date = di.value;
+  const et = document.getElementById("entry-title"); if (et) et.textContent = selPerson + " · " + fmt(date);
+  hours = {};
+  projects.forEach(p => { hours[p.id] = 0; });
+  const ex = entries.find(r => r.person === selPerson && r.date === date);
+  if (ex) Object.assign(hours, ex.hours);
+  const list = document.getElementById("proj-list"); if (!list) return;
+  list.innerHTML = "";
+  projects.forEach(pr => {
+    const [bg, tc] = gc(pr.group || pr.name);
+    const isSub = pr.group && pr.group !== pr.name;
+    const row = document.createElement("div");
+    row.className = "proj-row" + (hours[pr.id] > 0 ? " has-hours" : "");
+    row.id = "row-" + pr.id;
+    row.innerHTML = `
+      <span class="proj-tag" style="background:${bg};color:${tc}">${pr.group || pr.name}</span>
+      <span class="proj-label${isSub ? " sub" : ""}">${isSub ? pr.name : ""}</span>
+      <div class="hctrl">
+        <button class="hbtn" onclick="ch('${pr.id}',-0.5)">−</button>
+        <span class="hval${hours[pr.id] > 0 ? " on" : ""}" id="hv-${pr.id}">${hours[pr.id]}h</span>
+        <button class="hbtn" onclick="ch('${pr.id}',0.5)">+</button>
+      </div>`;
+    list.appendChild(row);
+  });
+  updTot(); gv("v-entry");
+}
+
+function ch(id, d) {
+  hours[id] = Math.max(0, Math.min(24, parseFloat((hours[id] + d).toFixed(1))));
+  const hv = document.getElementById("hv-" + id);
+  if (hv) { hv.textContent = hours[id] + "h"; hv.className = "hval" + (hours[id] > 0 ? " on" : ""); }
+  const row = document.getElementById("row-" + id);
+  if (row) row.className = "proj-row" + (hours[id] > 0 ? " has-hours" : "");
+  updTot();
+}
+function updTot() {
+  const t = Object.values(hours).reduce((a, b) => a + b, 0);
+  const el = document.getElementById("tot-display");
+  if (el) el.textContent = t.toFixed(1).replace(".0", "") + "h";
+}
+function doSave() {
+  const di = document.getElementById("inp-date"); if (!di) return;
+  const date = di.value;
+  entries = entries.filter(r => !(r.person === selPerson && r.date === date));
+  entries.push({ person: selPerson, date, hours: { ...hours } });
+  const tot = Object.values(hours).reduce((a, b) => a + b, 0);
+  const om = document.getElementById("ok-msg");
+  if (om) om.textContent = `${tot.toFixed(1).replace(".0", "")}h salvate per ${selPerson} — ${fmt(date)}`;
+  gv("v-ok");
+  saveData();
+}
+
+function gv(id) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  const el = document.getElementById(id); if (el) el.classList.add("active");
+  if (id === "v-dash") { buildProjFilter(); renderDash(); }
+  if (id === "v-projects") renderMgmt();
+}
+
+function renderMgmt() {
+  renderTeamMgmt();
+  renderProjMgmt();
+}
+
+function renderTeamMgmt() {
+  const el = document.getElementById("team-mgmt"); if (!el) return;
+  el.innerHTML = "";
+  TEAM.forEach((m, i) => {
+    const div = document.createElement("div"); div.className = "pm-row";
+    div.innerHTML = `
+      <span style="width:30px;height:30px;border-radius:50%;background:${m.bg};display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${m.tc};flex-shrink:0">${m.name.slice(0,2).toUpperCase()}</span>
+      <span style="flex:1;font-size:13px;font-weight:500;color:var(--text)">${m.name}</span>
+      <button class="del-btn" title="Rimuovi" onclick="delMember(${i})"><i class="ti ti-trash"></i></button>`;
+    el.appendChild(div);
+  });
+  if (!TEAM.length) el.innerHTML = '<p class="hint">Nessun membro nel team.</p>';
+}
+
+function addMember() {
+  const inp = document.getElementById("new-member"); if (!inp) return;
+  const name = inp.value.trim(); if (!name) return;
+  if (TEAM.find(m => m.name.toLowerCase() === name.toLowerCase())) {
+    alert("Esiste già un membro con questo nome."); return;
+  }
+  const ci = TEAM.length % EXTRA_COLORS.length;
+  TEAM.push({ name, bg: EXTRA_COLORS[ci][0], tc: EXTRA_COLORS[ci][1] });
+  inp.value = "";
+  saveTeam(); renderTeamMgmt(); buildPersonGrid();
+}
+
+function delMember(i) {
+  if (!confirm(`Rimuovere "${TEAM[i].name}" dal team?`)) return;
+  TEAM.splice(i, 1);
+  saveTeam(); renderTeamMgmt(); buildPersonGrid();
+  if (selPerson && !TEAM.find(m => m.name === selPerson)) {
+    selPerson = null;
+    const btn = document.getElementById("btn-next"); if (btn) btn.disabled = true;
+  }
+}
+
+function renderProjMgmt() {
+  const el = document.getElementById("proj-mgmt"); if (!el) return;
+  el.innerHTML = "";
+  if (!projects.length) { el.innerHTML = '<p class="hint">Nessun progetto. Aggiungine uno qui sotto.</p>'; return; }
+  projects.forEach((p, i) => {
+    const [bg, tc] = gc(p.group || p.name);
+    const div = document.createElement("div"); div.className = "pm-row";
+    div.innerHTML = `<span class="badge" style="background:${bg};color:${tc}">${p.group || p.name}</span>
+      <span style="flex:1;font-size:13px;font-weight:500;color:var(--text)">${p.name}</span>
+      <button class="del-btn" title="Elimina" onclick="delProj(${i})"><i class="ti ti-trash"></i></button>`;
+    el.appendChild(div);
+  });
+}
+function addProj() {
+  const nEl = document.getElementById("new-name");
+  const gEl = document.getElementById("new-group");
+  if (!nEl || !gEl) return;
+  const name = nEl.value.trim(); if (!name) return;
+  const group = gEl.value.trim() || name;
+  projects.push({ id: "p" + Date.now(), name, group });
+  nEl.value = ""; gEl.value = "";
+  saveProj(); renderMgmt();
+}
+function delProj(i) {
+  if (!confirm(`Eliminare "${projects[i].name}"?`)) return;
+  projects.splice(i, 1); saveProj(); renderMgmt();
+}
+
+function buildProjFilter() {
+  const sel = document.getElementById("f-proj"); if (!sel) return;
+  sel.innerHTML = '<option value="">Tutti i progetti</option>';
+  projects.forEach(p => { const o = document.createElement("option"); o.value = p.id; o.textContent = (p.group && p.group !== p.name ? p.group + " – " : "") + p.name; sel.appendChild(o); });
+}
+function setTab(t) {
+  activeTab = t;
+  ["p","t","l"].forEach(x => { const tb = document.getElementById("tab-" + x); if (tb) tb.className = "tab" + (x === t ? " active" : ""); });
+  renderDash();
+}
+function getFiltered() {
+  let d = [...entries];
+  const m = (document.getElementById("f-month") || {}).value || "";
+  const p = (document.getElementById("f-person") || {}).value || "";
+  const pr = (document.getElementById("f-proj") || {}).value || "";
+  if (m) d = d.filter(r => r.date.startsWith(m));
+  if (p) d = d.filter(r => r.person === p);
+  if (pr) d = d.filter(r => (r.hours[pr] || 0) > 0);
+  return d;
+}
+function renderDash() {
+  const data = getFiltered();
+  const el = document.getElementById("dash-body"); if (!el) return;
+  if (!data.length) { el.innerHTML = '<div class="empty"><i class="ti ti-clock-off" style="font-size:28px;display:block;margin-bottom:8px"></i>Nessuna ora inserita ancora.</div>'; return; }
+
+  if (activeTab === "p") {
+    const tot = {}; projects.forEach(p => { tot[p.id] = 0; });
+    data.forEach(r => projects.forEach(p => { tot[p.id] += (r.hours[p.id] || 0); }));
+    const grand = Object.values(tot).reduce((a, b) => a + b, 0);
+    const rows = projects.map(p => ({ ...p, t: tot[p.id] })).filter(p => p.t > 0).sort((a, b) => b.t - a.t);
+    el.innerHTML = `<div class="metrics">
+      <div class="mc"><div class="ml">Ore totali</div><div class="mv">${grand.toFixed(1).replace(".0","")}</div></div>
+      <div class="mc"><div class="ml">Inserimenti</div><div class="mv">${data.length}</div></div>
+    </div>` + (rows.length ? `<div class="tbl-wrap"><table>
+      <thead><tr><th>Progetto</th><th>Ore</th><th>%</th></tr></thead>
+      <tbody>${rows.map(p => {
+        const [bg, tc] = gc(p.group || p.name);
+        return `<tr>
+          <td><span class="badge" style="background:${bg};color:${tc};margin-right:6px">${p.group || p.name}</span>${p.group && p.group !== p.name ? p.name : ""}</td>
+          <td style="font-weight:600">${p.t.toFixed(1).replace(".0","")}h</td>
+          <td style="color:#6B52F5;font-weight:600">${grand > 0 ? Math.round(p.t / grand * 100) : 0}%</td>
+        </tr>`;
+      }).join("")}</tbody></table></div>` : "");
+
+  } else if (activeTab === "t") {
+    const totT = {}; TEAM.forEach(t => { totT[t.name] = 0; });
+    data.forEach(r => { totT[r.person] = (totT[r.person] || 0) + Object.values(r.hours).reduce((a, b) => a + b, 0); });
+    const rows = TEAM.map(t => ({ ...t, tot: totT[t.name], days: data.filter(r => r.person === t.name).length })).filter(t => t.tot > 0).sort((a, b) => b.tot - a.tot);
+    el.innerHTML = rows.length ? `<div class="tbl-wrap"><table>
+      <thead><tr><th>Persona</th><th>Ore totali</th><th>Media/gg</th></tr></thead>
+      <tbody>${rows.map(t => `<tr>
+        <td><span style="display:inline-flex;align-items:center;gap:8px">
+          <span style="width:24px;height:24px;border-radius:50%;background:${t.bg};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${t.tc}">${t.name.slice(0,2).toUpperCase()}</span>
+          ${t.name}</span></td>
+        <td style="font-weight:600">${t.tot.toFixed(1).replace(".0","")}h</td>
+        <td style="color:var(--text-muted)">${t.days > 0 ? (t.tot / t.days).toFixed(1) : "0"}h</td>
+      </tr>`).join("")}</tbody></table></div>` : '<div class="empty">Nessun dato.</div>';
+
+  } else {
+    const sorted = [...data].sort((a, b) => b.date.localeCompare(a.date));
+    el.innerHTML = `<div class="tbl-wrap"><table>
+      <thead><tr><th>Data</th><th>Chi</th><th>Progetti</th><th>Tot</th></tr></thead>
+      <tbody>${sorted.map(r => {
+        const tot = Object.values(r.hours).reduce((a, b) => a + b, 0);
+        const tm = TEAM.find(t => t.name === r.person) || { bg: "#F1EFE8", tc: "#444441" };
+        const badges = projects.filter(p => (r.hours[p.id] || 0) > 0).map(p => {
+          const [bg, tc] = gc(p.group || p.name);
+          return `<span class="badge" style="background:${bg};color:${tc};margin-right:3px">${p.group && p.group !== p.name ? p.name : (p.group || p.name)} ${r.hours[p.id]}h</span>`;
+        }).join("");
+        return `<tr>
+          <td style="white-space:nowrap;font-size:12px;color:var(--text-muted)">${fmt(r.date)}</td>
+          <td><span style="display:inline-flex;align-items:center;gap:6px">
+            <span style="width:22px;height:22px;border-radius:50%;background:${tm.bg};display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${tm.tc}">${r.person.slice(0,2).toUpperCase()}</span>
+            ${r.person}</span></td>
+          <td>${badges || "—"}</td>
+          <td style="font-weight:600;white-space:nowrap">${tot.toFixed(1).replace(".0","")}h</td>
+        </tr>`;
+      }).join("")}</tbody></table></div>`;
+  }
+}
+
+function doExport() {
+  const rows = [["Data","Persona",...projects.map(p => (p.group && p.group !== p.name ? p.group + " – " : "") + p.name),"Totale"]];
+  [...entries].sort((a, b) => a.date.localeCompare(b.date)).forEach(r => {
+    const tot = Object.values(r.hours).reduce((a, b) => a + b, 0);
+    rows.push([r.date, r.person, ...projects.map(p => r.hours[p.id] || 0), tot.toFixed(1)]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a"); a.href = url; a.download = "one_tech_ore.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function fmt(d) {
+  if (!d) return "";
+  const [y, m, day] = d.split("-");
+  return `${parseInt(day)} ${["","Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"][parseInt(m)||0]} ${y}`;
+}
+
+load();
+buildPersonGrid();
+const td = document.getElementById("inp-date");
+if (td) { td.value = new Date().toISOString().slice(0,10); td.addEventListener("change", checkBtn); }
+</script>
+</body>
+</html>
