@@ -29,11 +29,11 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', system-ui, sans-serif; background: #F0EFF5; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
-  .app { background: var(--bg); border-radius: 16px; width: 100%; max-width: 600px; overflow: hidden; border: 1px solid var(--border); }
-
+  .app { background: var(--bg); border-radius: 16px; width: 100%; max-width: 600px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+ 
   .view { display: none; }
   .view.active { display: block; }
-
+ 
   /* HEADER */
   .hdr { display: flex; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); gap: 10px; background: var(--bg); }
   .logo { display: flex; flex-direction: column; line-height: 1; }
@@ -45,10 +45,10 @@
   .sync-live { background: var(--green-bg); color: var(--green-text); }
   .sync-saving { background: var(--amber-bg); color: var(--amber-text); }
   .sync-err { background: var(--red-bg); color: var(--red-text); }
-
+ 
   /* BODY */
   .body { padding: 20px; }
-
+ 
   /* BUTTONS */
   .btn-sm { padding: 7px 13px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; transition: all .12s; font-family: inherit; }
   .btn-sm:hover { background: var(--bg-soft); color: var(--text); }
@@ -59,10 +59,10 @@
   .btn-back:hover { color: var(--text); }
   .btn-add { padding: 9px 16px; background: var(--purple); color: #fff; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; font-family: inherit; }
   .btn-add:hover { opacity: .9; }
-
+ 
   /* LABELS */
   .lbl { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: block; }
-
+ 
   /* PERSON GRID */
   .person-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 20px; }
   .p-btn { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); cursor: pointer; padding: 12px 8px 10px; text-align: center; transition: all .15s; }
@@ -71,12 +71,12 @@
   .p-btn .av { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
   .p-btn .pn { font-size: 12px; font-weight: 500; color: var(--text); }
   .p-btn.sel .pn { color: var(--purple-dark); }
-
+ 
   /* FIELD */
   .field { margin-bottom: 16px; }
   .field input, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text); outline: none; transition: border-color .15s; font-family: inherit; }
   .field input:focus, .field select:focus { border-color: var(--purple); }
-
+ 
   /* PROJECT ROWS */
   .proj-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); margin-bottom: 6px; transition: all .15s; }
   .proj-row.has-hours { border-color: var(--purple); background: var(--purple-light); }
@@ -88,28 +88,28 @@
   .hbtn:hover { background: var(--purple-light); border-color: var(--purple); color: var(--purple); }
   .hval { font-size: 14px; font-weight: 600; min-width: 34px; text-align: center; color: var(--text-muted); }
   .hval.on { color: var(--purple); }
-
+ 
   /* TOTAL BAR */
   .tot-bar { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; background: var(--purple-light); border: 1px solid var(--purple-mid); border-radius: var(--radius-sm); margin: 14px 0 16px; }
   .tot-bar span { font-size: 13px; font-weight: 500; color: #534AB7; }
   .tot-bar strong { font-size: 19px; font-weight: 700; color: var(--purple-dark); }
-
+ 
   /* TABS */
   .tabs { display: flex; gap: 3px; background: var(--bg-soft); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; border: 1px solid var(--border); }
   .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; color: var(--text-muted); border: none; background: none; transition: all .15s; font-family: inherit; }
   .tab.active { background: var(--bg); color: var(--purple); border: 1px solid var(--border); }
-
+ 
   /* FILTERS */
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
   .filters select { padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; outline: none; font-family: inherit; }
   .filters select:focus { border-color: var(--purple); }
-
+ 
   /* METRICS */
   .metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 16px; }
   .mc { background: var(--bg-soft); border-radius: var(--radius-sm); padding: 13px; }
   .mc .ml { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
   .mc .mv { font-size: 26px; font-weight: 700; color: var(--text); }
-
+ 
   /* TABLE */
   .tbl-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; margin-bottom: 16px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -118,14 +118,14 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--bg-soft); }
   .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; letter-spacing: .02em; }
-
+ 
   /* SUCCESS */
   .ok-wrap { text-align: center; padding: 3rem 1.5rem; }
   .ok-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--green-bg); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 28px; color: var(--green-text); }
   .ok-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
   .ok-wrap p { font-size: 14px; color: var(--text-muted); margin-bottom: 2rem; }
   .ok-btn { display: inline-block; padding: 12px 32px; background: var(--purple); color: #fff; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
-
+ 
   /* PROJECT MANAGEMENT */
   .pm-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 6px; background: var(--bg); }
   .del-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px 6px; border-radius: 6px; transition: all .1s; font-size: 16px; }
@@ -133,16 +133,24 @@
   .add-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .add-row input { flex: 1; min-width: 100px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--bg); color: var(--text); outline: none; font-family: inherit; }
   .add-row input:focus { border-color: var(--purple); }
-
+ 
   .hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
   .empty { text-align: center; padding: 2.5rem; color: var(--text-muted); font-size: 14px; }
   .divider { height: 1px; background: var(--border); margin: 18px 0; }
+  .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 100; border-radius: 16px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #E5E4E8; border-top-color: #6B52F5; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay p { font-size: 14px; color: var(--text-muted); font-weight: 500; }
 </style>
 </head>
 <body>
-
+ 
 <div class="app">
-
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p>Caricamento dati...</p>
+  </div>
+ 
   <!-- HOME -->
   <div id="v-home" class="view active">
     <div class="hdr">
@@ -161,7 +169,7 @@
       <button class="btn-main" id="btn-next" disabled onclick="goEntry()">Inserisci ore →</button>
     </div>
   </div>
-
+ 
   <!-- ENTRY -->
   <div id="v-entry" class="view">
     <div class="hdr">
@@ -175,7 +183,7 @@
       <button class="btn-main" onclick="doSave()">Salva ore</button>
     </div>
   </div>
-
+ 
   <!-- SUCCESS -->
   <div id="v-ok" class="view">
     <div class="hdr">
@@ -190,7 +198,7 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- PROJECTS -->
   <div id="v-projects" class="view">
     <div class="hdr">
@@ -215,7 +223,7 @@
       <p class="hint">Il gruppo raggruppa i sotto-progetti (opzionale — lascia vuoto se il progetto è indipendente)</p>
     </div>
   </div>
-
+ 
   <!-- DASHBOARD -->
   <div id="v-dash" class="view">
     <div class="hdr">
@@ -244,10 +252,34 @@
       <div id="dash-body"></div>
     </div>
   </div>
-
+ 
 </div>
-
+ 
 <script>
+const API = 'https://script.google.com/macros/s/AKfycbyjbTLGVXKSUwtKeEY3AIeY9U18EplmbikfOrp8NnMg3kWdkilb7bNwR3wGPiO7U8Sd/exec';
+ 
+let _cbIdx = 0;
+function jsonp(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__cb' + (++_cbIdx);
+    const timeout = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 12000);
+    function cleanup() { clearTimeout(timeout); delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove(); }
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+    const qs = Object.entries({ ...params, callback: cbName }).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&');
+    const s = document.createElement('script');
+    s.id = cbName;
+    s.src = API + '?' + qs;
+    s.onerror = () => { cleanup(); reject(new Error('script error')); };
+    document.head.appendChild(s);
+  });
+}
+ 
+async function api(action, body = null) {
+  const params = { action };
+  if (body) params.data = JSON.stringify(body);
+  return jsonp(params);
+}
+ 
 const DEFAULT_TEAM = [
   { name: "Nishant",   bg: "#EEEDFE", tc: "#3C3489" },
   { name: "Pranav",    bg: "#E1F5EE", tc: "#085041" },
@@ -262,7 +294,7 @@ const EXTRA_COLORS = [
   ["#FAECE7","#4A1B0C"],["#FBEAF0","#4B1528"],["#E6F1FB","#042C53"],
   ["#EAF3DE","#173404"],["#FAEEDA","#412402"],["#FCEBEB","#501313"],
 ];
-
+ 
 const DEF_PROJ = [
   { id: "acta",       name: "ACTA",           group: "ACTA" },
   { id: "aess_mkt",   name: "Marketing",      group: "AESSEFIN" },
@@ -272,7 +304,7 @@ const DEF_PROJ = [
   { id: "paul",       name: "PAUL E SHARK",   group: "PAUL E SHARK" },
   { id: "aws",        name: "AWS GENERAL",    group: "AWS GENERAL" },
 ];
-
+ 
 const GP = {
   "ACTA":          ["#EEEDFE", "#3C3489"],
   "AESSEFIN":      ["#E1F5EE", "#085041"],
@@ -280,22 +312,55 @@ const GP = {
   "AWS GENERAL":   ["#FAEEDA", "#633806"],
 };
 function gc(g) { return GP[g] || ["#F1EFE8", "#444441"]; }
-
-const KP = "ot_proj_v3", KD = "ot_data_v3", KT = "ot_team_v1";
+ 
+const KP = "ot_proj_cache", KD = "ot_data_cache", KT = "ot_team_cache";
 let selPerson = null, hours = {}, activeTab = "p";
 let projects = [], entries = [], TEAM = [];
-
-function load() {
-  try { projects = JSON.parse(localStorage.getItem(KP)) || JSON.parse(JSON.stringify(DEF_PROJ)); } catch(e) { projects = JSON.parse(JSON.stringify(DEF_PROJ)); }
-  try { entries  = JSON.parse(localStorage.getItem(KD)) || []; } catch(e) { entries = []; }
-  try { TEAM = JSON.parse(localStorage.getItem(KT)) || JSON.parse(JSON.stringify(DEFAULT_TEAM)); } catch(e) { TEAM = JSON.parse(JSON.stringify(DEFAULT_TEAM)); }
-}
-function saveProj() { try { localStorage.setItem(KP, JSON.stringify(projects)); } catch(e) {} }
-function saveTeam() { try { localStorage.setItem(KT, JSON.stringify(TEAM)); } catch(e) {} }
-function saveData() {
+let loading = false;
+ 
+async function load() {
+  showLoading(true);
   setSB("saving");
-  try { localStorage.setItem(KD, JSON.stringify(entries)); setSB("live"); }
-  catch(e) { setSB("err"); }
+  try {
+    const data = await api('getAll');
+    TEAM     = data.team     && data.team.length     ? data.team     : JSON.parse(JSON.stringify(DEFAULT_TEAM));
+    projects = data.projects && data.projects.length ? data.projects : JSON.parse(JSON.stringify(DEF_PROJ));
+    entries  = data.entries  || [];
+    // Se il Sheet è vuoto, inizializziamo con i default
+    if (!data.projects || !data.projects.length) await api('saveProjects', projects);
+    if (!data.team     || !data.team.length)     await api('saveTeam', TEAM);
+    setSB("live");
+  } catch(e) {
+    console.error(e);
+    setSB("err");
+    // Fallback a localStorage se offline
+    try { projects = JSON.parse(localStorage.getItem(KP)) || JSON.parse(JSON.stringify(DEF_PROJ)); } catch(x) { projects = JSON.parse(JSON.stringify(DEF_PROJ)); }
+    try { entries  = JSON.parse(localStorage.getItem(KD)) || []; } catch(x) { entries = []; }
+    try { TEAM     = JSON.parse(localStorage.getItem(KT)) || JSON.parse(JSON.stringify(DEFAULT_TEAM)); } catch(x) { TEAM = JSON.parse(JSON.stringify(DEFAULT_TEAM)); }
+  }
+  showLoading(false);
+}
+ 
+function showLoading(on) {
+  loading = on;
+  const el = document.getElementById("loading-overlay");
+  if (el) el.style.display = on ? "flex" : "none";
+}
+ 
+async function saveProj() {
+  localStorage.setItem(KP, JSON.stringify(projects));
+  setSB("saving");
+  try { await api('saveProjects', projects); setSB("live"); } catch(e) { setSB("err"); }
+}
+async function saveTeam() {
+  localStorage.setItem(KT, JSON.stringify(TEAM));
+  setSB("saving");
+  try { await api('saveTeam', TEAM); setSB("live"); } catch(e) { setSB("err"); }
+}
+async function saveData(entry) {
+  setSB("saving");
+  localStorage.setItem(KD, JSON.stringify(entries));
+  try { await api('saveEntry', entry); setSB("live"); } catch(e) { setSB("err"); }
 }
 function setSB(s) {
   const b = document.getElementById("sync-badge"); if (!b) return;
@@ -303,7 +368,7 @@ function setSB(s) {
   const [c, t] = m[s] || m.live;
   b.className = "sync-badge " + c; b.textContent = t;
 }
-
+ 
 function buildPersonGrid() {
   const el = document.getElementById("person-grid"); if (!el) return;
   el.innerHTML = "";
@@ -318,7 +383,7 @@ function buildPersonGrid() {
   sel.innerHTML = '<option value="">Tutto il team</option>';
   TEAM.forEach(p => { const o = document.createElement("option"); o.value = p.name; o.textContent = p.name; sel.appendChild(o); });
 }
-
+ 
 function pickPerson(n) {
   selPerson = n;
   document.querySelectorAll(".p-btn").forEach(b => b.classList.remove("sel"));
@@ -330,7 +395,7 @@ function checkBtn() {
   const btn = document.getElementById("btn-next");
   if (btn) btn.disabled = !(selPerson && d && d.value);
 }
-
+ 
 function goEntry() {
   const di = document.getElementById("inp-date"); if (!di) return;
   const date = di.value;
@@ -359,7 +424,7 @@ function goEntry() {
   });
   updTot(); gv("v-entry");
 }
-
+ 
 function ch(id, d) {
   hours[id] = Math.max(0, Math.min(24, parseFloat((hours[id] + d).toFixed(1))));
   const hv = document.getElementById("hv-" + id);
@@ -373,30 +438,31 @@ function updTot() {
   const el = document.getElementById("tot-display");
   if (el) el.textContent = t.toFixed(1).replace(".0", "") + "h";
 }
-function doSave() {
+async function doSave() {
   const di = document.getElementById("inp-date"); if (!di) return;
   const date = di.value;
+  const entry = { person: selPerson, date, hours: { ...hours } };
   entries = entries.filter(r => !(r.person === selPerson && r.date === date));
-  entries.push({ person: selPerson, date, hours: { ...hours } });
+  entries.push(entry);
   const tot = Object.values(hours).reduce((a, b) => a + b, 0);
   const om = document.getElementById("ok-msg");
   if (om) om.textContent = `${tot.toFixed(1).replace(".0", "")}h salvate per ${selPerson} — ${fmt(date)}`;
   gv("v-ok");
-  saveData();
+  await saveData(entry);
 }
-
+ 
 function gv(id) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   const el = document.getElementById(id); if (el) el.classList.add("active");
   if (id === "v-dash") { buildProjFilter(); renderDash(); }
   if (id === "v-projects") renderMgmt();
 }
-
+ 
 function renderMgmt() {
   renderTeamMgmt();
   renderProjMgmt();
 }
-
+ 
 function renderTeamMgmt() {
   const el = document.getElementById("team-mgmt"); if (!el) return;
   el.innerHTML = "";
@@ -410,7 +476,7 @@ function renderTeamMgmt() {
   });
   if (!TEAM.length) el.innerHTML = '<p class="hint">Nessun membro nel team.</p>';
 }
-
+ 
 function addMember() {
   const inp = document.getElementById("new-member"); if (!inp) return;
   const name = inp.value.trim(); if (!name) return;
@@ -422,7 +488,7 @@ function addMember() {
   inp.value = "";
   saveTeam(); renderTeamMgmt(); buildPersonGrid();
 }
-
+ 
 function delMember(i) {
   if (!confirm(`Rimuovere "${TEAM[i].name}" dal team?`)) return;
   TEAM.splice(i, 1);
@@ -432,7 +498,7 @@ function delMember(i) {
     const btn = document.getElementById("btn-next"); if (btn) btn.disabled = true;
   }
 }
-
+ 
 function renderProjMgmt() {
   const el = document.getElementById("proj-mgmt"); if (!el) return;
   el.innerHTML = "";
@@ -460,7 +526,7 @@ function delProj(i) {
   if (!confirm(`Eliminare "${projects[i].name}"?`)) return;
   projects.splice(i, 1); saveProj(); renderMgmt();
 }
-
+ 
 function buildProjFilter() {
   const sel = document.getElementById("f-proj"); if (!sel) return;
   sel.innerHTML = '<option value="">Tutti i progetti</option>';
@@ -485,7 +551,7 @@ function renderDash() {
   const data = getFiltered();
   const el = document.getElementById("dash-body"); if (!el) return;
   if (!data.length) { el.innerHTML = '<div class="empty"><i class="ti ti-clock-off" style="font-size:28px;display:block;margin-bottom:8px"></i>Nessuna ora inserita ancora.</div>'; return; }
-
+ 
   if (activeTab === "p") {
     const tot = {}; projects.forEach(p => { tot[p.id] = 0; });
     data.forEach(r => projects.forEach(p => { tot[p.id] += (r.hours[p.id] || 0); }));
@@ -504,7 +570,7 @@ function renderDash() {
           <td style="color:#6B52F5;font-weight:600">${grand > 0 ? Math.round(p.t / grand * 100) : 0}%</td>
         </tr>`;
       }).join("")}</tbody></table></div>` : "");
-
+ 
   } else if (activeTab === "t") {
     const totT = {}; TEAM.forEach(t => { totT[t.name] = 0; });
     data.forEach(r => { totT[r.person] = (totT[r.person] || 0) + Object.values(r.hours).reduce((a, b) => a + b, 0); });
@@ -518,7 +584,7 @@ function renderDash() {
         <td style="font-weight:600">${t.tot.toFixed(1).replace(".0","")}h</td>
         <td style="color:var(--text-muted)">${t.days > 0 ? (t.tot / t.days).toFixed(1) : "0"}h</td>
       </tr>`).join("")}</tbody></table></div>` : '<div class="empty">Nessun dato.</div>';
-
+ 
   } else {
     const sorted = [...data].sort((a, b) => b.date.localeCompare(a.date));
     el.innerHTML = `<div class="tbl-wrap"><table>
@@ -541,7 +607,7 @@ function renderDash() {
       }).join("")}</tbody></table></div>`;
   }
 }
-
+ 
 function doExport() {
   const rows = [["Data","Persona",...projects.map(p => (p.group && p.group !== p.name ? p.group + " – " : "") + p.name),"Totale"]];
   [...entries].sort((a, b) => a.date.localeCompare(b.date)).forEach(r => {
@@ -553,17 +619,19 @@ function doExport() {
   const a = document.createElement("a"); a.href = url; a.download = "one_tech_ore.csv";
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
-
+ 
 function fmt(d) {
   if (!d) return "";
   const [y, m, day] = d.split("-");
   return `${parseInt(day)} ${["","Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"][parseInt(m)||0]} ${y}`;
 }
-
-load();
-buildPersonGrid();
-const td = document.getElementById("inp-date");
-if (td) { td.value = new Date().toISOString().slice(0,10); td.addEventListener("change", checkBtn); }
+ 
+load().then(() => {
+  buildPersonGrid();
+  const td = document.getElementById("inp-date");
+  if (td) { td.value = new Date().toISOString().slice(0,10); td.addEventListener("change", checkBtn); }
+});
 </script>
 </body>
 </html>
+ 
