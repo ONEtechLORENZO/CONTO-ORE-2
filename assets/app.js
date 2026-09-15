@@ -119,8 +119,17 @@ async function boot() {
 function showLogin() {
   $('v-app').hidden = true; $('v-login').hidden = false;
   $('login-err').hidden = true; $('login-pass').value = '';
+  loginClock();
   setTimeout(() => $('login-user').focus(), 50);
 }
+function loginClock() {
+  const g = $('login-greet'); if (!g) return;
+  const d = new Date(), h = d.getHours();
+  g.textContent = (h < 5 ? 'Buonanotte' : h < 13 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera') + '.';
+  $('login-date').textContent = `${WDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  $('login-clock').textContent = `${pad(h)}:${pad(d.getMinutes())}`;
+}
+setInterval(loginClock, 15000);
 
 $('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
