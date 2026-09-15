@@ -2,519 +2,190 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>One Tech — Tracker Ore</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%236B52F5'/%3E%3Ctext x='16' y='21' font-size='14' font-weight='700' font-family='sans-serif' text-anchor='middle' fill='white'%3Eone%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-<style>
-:root{--p:#6B52F5;--pl:#F3F1FF;--pm:#C4BAF8;--pd:#3C3489;--bd:#E5E4E8;--tx:#1A1A2E;--tm:#6B6B80;--bg:#fff;--bs:#F8F8FB;--gbg:#E1F5EE;--gtx:#0F6E56;--abg:#FAEEDA;--atx:#854F0B;--rbg:#FCEBEB;--rtx:#A32D2D;--r:10px;--rs:7px}
-*{box-sizing:border-box;margin:0;padding:0}
-body,input,select,button{font-family:'DM Sans',system-ui,sans-serif}
-body{background:#F0EFF5;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px}
-.app{background:var(--bg);border-radius:16px;width:100%;max-width:600px;overflow:hidden;border:1px solid var(--bd);position:relative}
-.view{display:none}.view.active{display:block}
-.overlay{position:absolute;inset:0;background:rgba(255,255,255,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:100;border-radius:16px}
-.spinner{width:34px;height:34px;border:3px solid var(--bd);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.overlay p{font-size:14px;color:var(--tm);font-weight:500}
-.hdr{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--bd);gap:10px}
-.logo-one{font-size:20px;font-weight:700;color:var(--p);letter-spacing:-1px;line-height:1}
-.logo-tech{font-size:8px;font-weight:700;letter-spacing:4px;color:var(--tm);margin-top:1px}
-.hdr-title{font-size:13px;color:var(--tm);margin-left:10px;padding-left:10px;border-left:1px solid var(--bd)}
-.hdr-r{margin-left:auto;display:flex;align-items:center;gap:6px}
-.sync{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px}
-.s-live{background:var(--gbg);color:var(--gtx)}.s-saving{background:var(--abg);color:var(--atx)}.s-err{background:var(--rbg);color:var(--rtx)}
-.body{padding:20px}
-.lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tm);margin-bottom:10px;display:block}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:20px}
-.pbtn{border:1px solid var(--bd);border-radius:var(--r);background:var(--bg);cursor:pointer;padding:12px 8px 10px;text-align:center;transition:all .15s}
-.pbtn:hover{border-color:var(--p);background:var(--pl)}
-.pbtn.sel{border:2px solid var(--p);background:var(--pl)}
-.av{width:32px;height:32px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.pn{font-size:12px;font-weight:500;color:var(--tx)}
-.pbtn.sel .pn{color:var(--pd)}
-.field{margin-bottom:16px}
-.field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:var(--rs);font-size:14px;background:var(--bg);color:var(--tx);outline:none;transition:border-color .15s}
-.field input:focus,.field select:focus{border-color:var(--p)}
-.prow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--bg);margin-bottom:6px;transition:all .15s}
-.prow.on{border-color:var(--p);background:var(--pl)}
-.ptag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;flex-shrink:0}
-.plbl{flex:1;font-size:13px;font-weight:500;color:var(--tx)}
-.plbl.sub{color:var(--tm)}
-.hc{display:flex;align-items:center;gap:8px}
-.hbtn{width:28px;height:28px;border-radius:6px;border:1px solid var(--bd);background:var(--bs);cursor:pointer;font-size:18px;color:var(--tx);display:flex;align-items:center;justify-content:center;transition:all .12s;padding:0}
-.hbtn:hover{background:var(--pl);border-color:var(--p);color:var(--p)}
-.hval{font-size:14px;font-weight:600;min-width:34px;text-align:center;color:var(--tm)}
-.hval.on{color:var(--p)}
-.totbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--pl);border:1px solid var(--pm);border-radius:var(--rs);margin:12px 0 16px}
-.totbar span{font-size:13px;font-weight:500;color:#534AB7}
-.totbar strong{font-size:18px;font-weight:700;color:var(--pd)}
-.btnmain{width:100%;padding:12px;background:var(--p);color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s}
-.btnmain:hover{opacity:.88}.btnmain:disabled{opacity:.3;cursor:default}
-.btnsm{padding:7px 13px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--bg);cursor:pointer;font-size:12px;font-weight:500;color:var(--tm);display:inline-flex;align-items:center;gap:5px;transition:all .12s}
-.btnsm:hover{background:var(--bs);color:var(--tx)}
-.btnbk{background:none;border:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--tm);display:flex;align-items:center;gap:4px;padding:0}
-.btnbk:hover{color:var(--tx)}
-.tabs{display:flex;gap:3px;background:var(--bs);border-radius:var(--rs);padding:3px;margin-bottom:16px;border:1px solid var(--bd)}
-.tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--tm);border:none;background:none;transition:all .15s}
-.tab.active{background:var(--bg);color:var(--p);border:1px solid var(--bd)}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.filters select{padding:8px 10px;border-radius:var(--rs);border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:13px;outline:none}
-.mets{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px}
-.mc{background:var(--bs);border-radius:var(--rs);padding:12px}
-.ml{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tm);margin-bottom:4px}
-.mv{font-size:26px;font-weight:700;color:var(--tx)}
-.twrap{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;overflow-x:auto;margin-bottom:16px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--bs);padding:8px 14px;text-align:left;font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--tm);border-bottom:1px solid var(--bd);white-space:nowrap}
-td{padding:9px 14px;border-bottom:1px solid var(--bd);color:var(--tx)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--bs)}
-.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px}
-.okwrap{text-align:center;padding:3rem 1.5rem}
-.okicon{width:60px;height:60px;border-radius:50%;background:var(--gbg);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:26px;color:var(--gtx)}
-.okwrap h2{font-size:20px;font-weight:700;margin-bottom:6px}
-.okwrap p{font-size:14px;color:var(--tm);margin-bottom:2rem}
-.okbtn{padding:11px 28px;background:var(--p);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer}
-.pmrow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);border:1px solid var(--bd);margin-bottom:6px;background:var(--bg)}
-.delbtn{background:none;border:none;cursor:pointer;color:var(--tm);padding:4px 6px;border-radius:6px;transition:all .1s;font-size:16px}
-.delbtn:hover{color:var(--rtx);background:var(--rbg)}
-.addrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.addrow input{flex:1;min-width:100px;padding:9px 12px;border:1px solid var(--bd);border-radius:var(--rs);font-size:13px;background:var(--bg);color:var(--tx);outline:none}
-.addrow input:focus{border-color:var(--p)}
-.btnadd{padding:9px 16px;background:var(--p);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap}
-.hint{font-size:12px;color:var(--tm);margin-top:8px;line-height:1.5}
-.empty{text-align:center;padding:2.5rem;color:var(--tm);font-size:14px}
-.divider{height:1px;background:var(--bd);margin:18px 0}
-</style>
+<link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-<div class="app">
-  <div class="overlay" id="overlay"><div class="spinner"></div><p>Caricamento dati...</p></div>
 
-  <!-- HOME -->
-  <div id="v-home" class="view active">
-    <div class="hdr">
-      <div><div class="logo-one">one</div><div class="logo-tech">TECH</div></div>
-      <span class="hdr-title">Tracker ore</span>
-      <div class="hdr-r">
-        <span class="sync s-live" id="sync-badge">● live</span>
-        <button class="btnsm" onclick="gv('v-settings')"><i class="ti ti-settings"></i> Impostazioni</button>
-        <button class="btnsm" onclick="gv('v-dash')"><i class="ti ti-chart-bar"></i> Riepilogo</button>
-      </div>
-    </div>
-    <div class="body">
-      <span class="lbl">Chi sei?</span>
-      <div class="pgrid" id="pgrid"></div>
-      <div class="field"><span class="lbl">Data</span><input type="date" id="inp-date"></div>
-      <button class="btnmain" id="btn-next" disabled onclick="goEntry()">Inserisci ore →</button>
-    </div>
-  </div>
+<div class="overlay" id="overlay"><div class="spinner"></div><p id="overlay-msg">Caricamento...</p></div>
+<div class="toasts" id="toasts"></div>
 
-  <!-- ENTRY -->
-  <div id="v-entry" class="view">
-    <div class="hdr">
-      <button class="btnbk" onclick="gv('v-home')"><i class="ti ti-arrow-left"></i> Indietro</button>
-      <span class="hdr-title" id="etitle">—</span>
+<!-- ================= LOGIN ================= -->
+<div id="v-login" class="login-wrap" hidden>
+  <form class="login" id="login-form" autocomplete="on">
+    <div class="logo"><div class="logo-one">one</div><div class="logo-tech">TECH</div></div>
+    <h1>Tracker Ore</h1>
+    <p class="sub">Accedi con le credenziali del CRM</p>
+    <div class="err" id="login-err" hidden></div>
+    <div class="field">
+      <label for="login-user">Username</label>
+      <input id="login-user" name="username" class="inp" placeholder="es. MARAT" autocapitalize="characters" autocomplete="username" required>
     </div>
-    <div class="body">
-      <span class="lbl">Ore per progetto</span>
-      <div id="plist"></div>
-      <div class="totbar"><span>Totale ore oggi</span><strong id="totval">0h</strong></div>
-      <button class="btnmain" onclick="doSave()">Salva ore</button>
+    <div class="field">
+      <label for="login-pass">Password</label>
+      <input id="login-pass" name="password" type="password" class="inp" placeholder="••••••••" autocomplete="current-password" required>
     </div>
-  </div>
-
-  <!-- SUCCESS -->
-  <div id="v-ok" class="view">
-    <div class="hdr"><div><div class="logo-one">one</div><div class="logo-tech">TECH</div></div></div>
-    <div class="body">
-      <div class="okwrap">
-        <div class="okicon"><i class="ti ti-check"></i></div>
-        <h2>Ore salvate!</h2>
-        <p id="okmsg">—</p>
-        <button class="okbtn" onclick="gv('v-home')">Torna alla home</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="v-settings" class="view">
-    <div class="hdr">
-      <button class="btnbk" onclick="gv('v-home')"><i class="ti ti-arrow-left"></i> Indietro</button>
-      <span class="hdr-title">Impostazioni</span>
-    </div>
-    <div class="body">
-      <span class="lbl">Team</span>
-      <div id="team-list"></div>
-      <div class="addrow">
-        <input type="text" id="new-member" placeholder="Nome nuovo membro...">
-        <button class="btnadd" onclick="addMember()"><i class="ti ti-user-plus"></i> Aggiungi</button>
-      </div>
-      <div class="divider"></div>
-      <span class="lbl">Progetti</span>
-      <div id="proj-list-mgmt"></div>
-      <div class="addrow">
-        <input type="text" id="new-proj-name" placeholder="Nome progetto...">
-        <input type="text" id="new-proj-group" placeholder="Gruppo (opzionale)">
-        <button class="btnadd" onclick="addProj()"><i class="ti ti-plus"></i> Aggiungi</button>
-      </div>
-      <p class="hint">Il gruppo raggruppa i sotto-progetti (es. tutti i sotto-progetti di AESSEFIN)</p>
-    </div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="v-dash" class="view">
-    <div class="hdr">
-      <button class="btnbk" onclick="gv('v-home')"><i class="ti ti-arrow-left"></i> Indietro</button>
-      <span class="hdr-title">Riepilogo ore</span>
-      <div class="hdr-r"><button class="btnsm" onclick="doExport()"><i class="ti ti-download"></i> CSV</button></div>
-    </div>
-    <div class="body">
-      <div class="tabs">
-        <button class="tab active" id="tab-p" onclick="setTab('p')">Progetti</button>
-        <button class="tab" id="tab-t" onclick="setTab('t')">Persone</button>
-        <button class="tab" id="tab-l" onclick="setTab('l')">Log</button>
-      </div>
-      <div class="filters">
-        <select id="f-month" onchange="renderDash()">
-          <option value="">Tutti i mesi</option>
-          <option value="2026-05">Maggio 2026</option>
-          <option value="2026-06">Giugno 2026</option>
-          <option value="2026-07">Luglio 2026</option>
-        </select>
-        <select id="f-person" onchange="renderDash()"><option value="">Tutto il team</option></select>
-        <select id="f-proj" onchange="renderDash()"><option value="">Tutti i progetti</option></select>
-      </div>
-      <div id="dash-body"></div>
-    </div>
-  </div>
+    <button class="btn primary big" id="login-btn" type="submit">Accedi <i class="ti ti-arrow-right"></i></button>
+    <p class="foot">Password dimenticata? Chiedi a un amministratore.</p>
+  </form>
 </div>
 
-<script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyjbTLGVXKSUwtKeEY3AIeY9U18EplmbikfOrp8NnMg3kWdkilb7bNwR3wGPiO7U8Sd/exec';
+<!-- ================= APP ================= -->
+<div id="v-app" class="shell" hidden>
+  <header class="topbar">
+    <div class="logo"><div class="logo-one">one</div><div class="logo-tech">TECH</div></div>
+    <span class="title">Tracker ore</span>
+    <nav class="nav" id="nav">
+      <button data-page="dash" class="active"><i class="ti ti-chart-bar"></i><span>Dashboard</span></button>
+      <button data-page="clock"><i class="ti ti-clock-hour-4"></i><span>Ore</span></button>
+      <button data-page="admin" id="nav-admin" hidden><i class="ti ti-settings"></i><span>Admin</span></button>
+    </nav>
+    <div class="userchip">
+      <div class="av" id="me-av">—</div>
+      <div><div class="name" id="me-name">—</div><div class="role" id="me-role">—</div></div>
+      <button class="iconbtn" id="btn-logout" title="Esci"><i class="ti ti-logout"></i></button>
+    </div>
+  </header>
 
-// ── JSONP ──────────────────────────────────────────────
-let cbIdx = 0;
-function jsonp(params) {
-  return new Promise((resolve, reject) => {
-    const name = '_cb' + (++cbIdx);
-    const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 15000);
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[name];
-      const s = document.getElementById('s' + name);
-      if (s) s.remove();
-    }
-    window[name] = d => { cleanup(); resolve(d); };
-    const qs = Object.entries({ ...params, callback: name })
-      .map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&');
-    const s = document.createElement('script');
-    s.id = 's' + name;
-    s.src = API_URL + '?' + qs;
-    s.onerror = () => { cleanup(); reject(new Error('network error')); };
-    document.head.appendChild(s);
-  });
-}
-function api(action, data) {
-  const p = { action };
-  if (data !== undefined) p.data = JSON.stringify(data);
-  return jsonp(p);
-}
+  <!-- ---------- DASHBOARD ---------- -->
+  <section id="p-dash" class="page active">
+    <div class="toolbar">
+      <div class="monthnav">
+        <button id="m-prev" title="Mese precedente"><i class="ti ti-chevron-left"></i></button>
+        <span id="m-label">—</span>
+        <button id="m-next" title="Mese successivo"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <button class="btn sm" id="m-today">Questo mese</button>
+      <select class="sel" id="d-scope" hidden></select>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn sm" id="d-csv"><i class="ti ti-download"></i> CSV</button>
+      </div>
+    </div>
 
-// ── DEFAULTS ──────────────────────────────────────────
-const DEF_TEAM = [
-  {name:'Nishant',  bg:'#EEEDFE',tc:'#3C3489'},
-  {name:'Pranav',   bg:'#E1F5EE',tc:'#085041'},
-  {name:'Luca',     bg:'#FCE4D6',tc:'#712B13'},
-  {name:'Marat',    bg:'#FAEEDA',tc:'#633806'},
-  {name:'Benedetta',bg:'#FBEAF0',tc:'#72243E'},
-  {name:'Deniz',    bg:'#E6F1FB',tc:'#0C447C'},
-  {name:'Lorenzo',  bg:'#EAF3DE',tc:'#27500A'},
-];
-const DEF_PROJ = [
-  {id:'acta',      name:'ACTA',          group:'ACTA'},
-  {id:'aess_mkt',  name:'Marketing',     group:'AESSEFIN'},
-  {id:'aess_sito', name:'Sito',          group:'AESSEFIN'},
-  {id:'aess_be',   name:'Back End',      group:'AESSEFIN'},
-  {id:'aess_infra',name:'Infrastrutture',group:'AESSEFIN'},
-  {id:'paul',      name:'PAUL E SHARK',  group:'PAUL E SHARK'},
-  {id:'aws',       name:'AWS GENERAL',   group:'AWS GENERAL'},
-];
-const XCOLS = ['#EEEDFE:#26215C','#E1F5EE:#04342C','#FAECE7:#4A1B0C',
-               '#FBEAF0:#4B1528','#EAF3DE:#173404','#FAEEDA:#412402'].map(x=>x.split(':'));
-const GP = {
-  'ACTA':         ['#EEEDFE','#3C3489'],
-  'AESSEFIN':     ['#E1F5EE','#085041'],
-  'PAUL E SHARK': ['#FCE4D6','#712B13'],
-  'AWS GENERAL':  ['#FAEEDA','#633806'],
-};
-function gc(g){return GP[g]||['#F1EFE8','#444']}
+    <div class="kpis" id="kpis"></div>
 
-// ── STATE ─────────────────────────────────────────────
-let selPerson=null, hrs={}, activeTab='p';
-let TEAM=[], projects=[], entries=[];
+    <div class="grid2">
+      <div class="card">
+        <div class="card-h"><h2 id="c1-title">Ore per giorno</h2></div>
+        <div class="chartbox"><canvas id="chart-days"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Ore per progetto</h2></div>
+        <div id="proj-bars"></div>
+      </div>
+    </div>
 
-// ── INIT ──────────────────────────────────────────────
-async function init() {
-  showOverlay(true);
-  try {
-    const d = await api('getAll');
-    TEAM     = d.team     && d.team.length     ? d.team     : JSON.parse(JSON.stringify(DEF_TEAM));
-    projects = d.projects && d.projects.length ? d.projects : JSON.parse(JSON.stringify(DEF_PROJ));
-    entries  = d.entries  || [];
-    // Prima volta: popola Sheet con defaults
-    if (!d.projects || !d.projects.length) api('saveProjects', projects);
-    if (!d.team     || !d.team.length)     api('saveTeam', TEAM);
-    setSB('live');
-  } catch(e) {
-    console.error(e);
-    TEAM     = JSON.parse(JSON.stringify(DEF_TEAM));
-    projects = JSON.parse(JSON.stringify(DEF_PROJ));
-    entries  = [];
-    setSB('err');
-  }
-  buildGrid();
-  showOverlay(false);
-}
+    <div class="card" id="team-card" hidden>
+      <div class="card-h"><h2>Team</h2><span class="hint" id="team-hint"></span></div>
+      <div id="team-table"></div>
+    </div>
 
-function showOverlay(on) {
-  const o = document.getElementById('overlay');
-  if (o) o.style.display = on ? 'flex' : 'none';
-}
-function setSB(s) {
-  const b = document.getElementById('sync-badge'); if (!b) return;
-  const M = {live:['s-live','● live'],saving:['s-saving','⟳ sync...'],err:['s-err','⚠ errore']};
-  const [c,t] = M[s]||M.live;
-  b.className='sync '+c; b.textContent=t;
-}
+    <div class="card">
+      <div class="card-h"><h2>Registro</h2><span class="hint" id="log-hint"></span></div>
+      <div id="log-table"></div>
+    </div>
+  </section>
 
-// ── PERSON GRID ───────────────────────────────────────
-function buildGrid() {
-  const el = document.getElementById('pgrid'); if (!el) return;
-  el.innerHTML = '';
-  TEAM.forEach(p => {
-    const b = document.createElement('button');
-    b.className = 'pbtn'; b.id = 'pb-'+p.name;
-    b.innerHTML = `<div class="av" style="background:${p.bg};color:${p.tc}">${p.name.slice(0,2).toUpperCase()}</div><div class="pn">${p.name}</div>`;
-    b.onclick = () => pick(p.name);
-    el.appendChild(b);
-  });
-  // rebuild filters
-  const fp = document.getElementById('f-person'); if (!fp) return;
-  fp.innerHTML = '<option value="">Tutto il team</option>';
-  TEAM.forEach(p => { const o=document.createElement('option'); o.value=p.name; o.textContent=p.name; fp.appendChild(o); });
-}
-function pick(n) {
-  selPerson = n;
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('sel'));
-  const b=document.getElementById('pb-'+n); if(b)b.classList.add('sel');
-  chkBtn();
-}
-function chkBtn() {
-  const d=document.getElementById('inp-date');
-  const b=document.getElementById('btn-next');
-  if(b)b.disabled=!(selPerson&&d&&d.value);
-}
+  <!-- ---------- CLOCKING ---------- -->
+  <section id="p-clock" class="page">
+    <div class="card">
+      <div class="card-h">
+        <h2>Inserisci ore</h2>
+        <div class="right">
+          <select class="sel" id="c-person" hidden></select>
+        </div>
+      </div>
+      <div class="daynav">
+        <button class="iconbtn" id="d-prev" title="Giorno precedente"><i class="ti ti-chevron-left"></i></button>
+        <input type="date" id="c-date">
+        <button class="iconbtn" id="d-next" title="Giorno successivo"><i class="ti ti-chevron-right"></i></button>
+        <button class="btn sm" id="d-today">Oggi</button>
+        <span class="daylabel" id="c-daylabel"></span>
+      </div>
+      <div class="week" id="week"></div>
+      <div id="plist"></div>
+      <div class="totbar"><span>Totale del giorno</span><strong id="totval">0h</strong></div>
+      <div class="savebar">
+        <button class="btn primary" id="btn-save"><i class="ti ti-device-floppy"></i> Salva ore</button>
+        <button class="btn" id="btn-reset">Annulla modifiche</button>
+        <span class="status" id="save-status"></span>
+      </div>
+    </div>
+  </section>
 
-// ── ENTRY ─────────────────────────────────────────────
-function goEntry() {
-  const di=document.getElementById('inp-date'); if(!di)return;
-  const date=di.value;
-  const et=document.getElementById('etitle'); if(et)et.textContent=selPerson+' · '+fmt(date);
-  hrs={};
-  projects.forEach(p=>{hrs[p.id]=0});
-  const ex=entries.find(r=>r.person===selPerson&&r.date===date);
-  if(ex)Object.assign(hrs,ex.hours);
-  const list=document.getElementById('plist'); if(!list)return;
-  list.innerHTML='';
-  projects.forEach(pr=>{
-    const[bg,tc]=gc(pr.group||pr.name);
-    const isSub=pr.group&&pr.group!==pr.name;
-    const row=document.createElement('div');
-    row.className='prow'+(hrs[pr.id]>0?' on':'');
-    row.id='row-'+pr.id;
-    row.innerHTML=`<span class="ptag" style="background:${bg};color:${tc}">${pr.group||pr.name}</span>
-      <span class="plbl${isSub?' sub':''}">${isSub?pr.name:''}</span>
-      <div class="hc">
-        <button class="hbtn" onclick="ch('${pr.id}',-0.5)">−</button>
-        <span class="hval${hrs[pr.id]>0?' on':''}" id="hv-${pr.id}">${hrs[pr.id]}h</span>
-        <button class="hbtn" onclick="ch('${pr.id}',0.5)">+</button>
-      </div>`;
-    list.appendChild(row);
-  });
-  updTot(); gv('v-entry');
-}
-function ch(id,d) {
-  hrs[id]=Math.max(0,Math.min(24,parseFloat((hrs[id]+d).toFixed(1))));
-  const hv=document.getElementById('hv-'+id);
-  if(hv){hv.textContent=hrs[id]+'h';hv.className='hval'+(hrs[id]>0?' on':'');}
-  const row=document.getElementById('row-'+id);
-  if(row)row.className='prow'+(hrs[id]>0?' on':'');
-  updTot();
-}
-function updTot() {
-  const t=Object.values(hrs).reduce((a,b)=>a+b,0);
-  const el=document.getElementById('totval');
-  if(el)el.textContent=t.toFixed(1).replace('.0','')+'h';
-}
-async function doSave() {
-  const di=document.getElementById('inp-date'); if(!di)return;
-  const date=di.value;
-  const entry={person:selPerson,date,hours:{...hrs}};
-  entries=entries.filter(r=>!(r.person===selPerson&&r.date===date));
-  entries.push(entry);
-  const tot=Object.values(hrs).reduce((a,b)=>a+b,0);
-  const om=document.getElementById('okmsg');
-  if(om)om.textContent=`${tot.toFixed(1).replace('.0','')}h salvate per ${selPerson} — ${fmt(date)}`;
-  gv('v-ok');
-  setSB('saving');
-  try{ await api('saveEntry',entry); setSB('live'); }catch(e){ setSB('err'); }
-}
+  <!-- ---------- ADMIN ---------- -->
+  <section id="p-admin" class="page">
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab active" data-atab="users">Dipendenti</button>
+        <button class="tab" data-atab="projects">Progetti</button>
+        <button class="tab" data-atab="export">Export</button>
+      </div>
+    </div>
 
-// ── NAVIGATION ────────────────────────────────────────
-function gv(id) {
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const el=document.getElementById(id); if(el)el.classList.add('active');
-  if(id==='v-dash'){buildProjFilter();renderDash();}
-  if(id==='v-settings'){renderTeam();renderProjs();}
-}
+    <!-- users -->
+    <div id="a-users">
+      <div class="card">
+        <div class="card-h"><h2>Nuovo dipendente</h2></div>
+        <div class="formgrid">
+          <div class="field"><label>Nome completo</label><input class="inp" id="u-full" placeholder="es. Marat Yerkebayev"></div>
+          <div class="field"><label>Username</label><input class="inp" id="u-user" placeholder="MARAT" autocapitalize="characters"></div>
+          <div class="field"><label>Password iniziale</label><input class="inp pw" id="u-pass" placeholder="301301My"></div>
+          <div class="field"><label>Ruolo</label><select class="sel" id="u-role" style="width:100%"><option value="member">Staff</option><option value="admin">Admin</option></select></div>
+          <div class="field"><button class="btn primary" id="u-add" style="width:100%"><i class="ti ti-user-plus"></i> Aggiungi</button></div>
+        </div>
+        <p class="hint" style="margin-top:10px">Username e password vengono proposti automaticamente dal nome (prefisso <b id="u-prefix"></b> + iniziali). Puoi modificarli prima di salvare.</p>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Team</h2><span class="hint" id="users-hint"></span></div>
+        <div id="users-table"></div>
+      </div>
+    </div>
 
-// ── SETTINGS ──────────────────────────────────────────
-function renderTeam() {
-  const el=document.getElementById('team-list'); if(!el)return;
-  el.innerHTML='';
-  TEAM.forEach((m,i)=>{
-    const div=document.createElement('div'); div.className='pmrow';
-    div.innerHTML=`<span style="width:30px;height:30px;border-radius:50%;background:${m.bg};display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${m.tc};flex-shrink:0">${m.name.slice(0,2).toUpperCase()}</span>
-      <span style="flex:1;font-size:13px;font-weight:500">${m.name}</span>
-      <button class="delbtn" onclick="delMember(${i})"><i class="ti ti-trash"></i></button>`;
-    el.appendChild(div);
-  });
-  if(!TEAM.length)el.innerHTML='<p class="hint">Nessun membro.</p>';
-}
-async function addMember() {
-  const inp=document.getElementById('new-member'); if(!inp)return;
-  const name=inp.value.trim(); if(!name)return;
-  if(TEAM.find(m=>m.name.toLowerCase()===name.toLowerCase())){alert('Nome già esistente');return;}
-  const[bg,tc]=XCOLS[TEAM.length%XCOLS.length];
-  TEAM.push({name,bg,tc});
-  inp.value='';
-  renderTeam(); buildGrid();
-  setSB('saving');
-  try{await api('saveTeam',TEAM);setSB('live');}catch(e){setSB('err');}
-}
-async function delMember(i) {
-  if(!confirm(`Rimuovere "${TEAM[i].name}"?`))return;
-  TEAM.splice(i,1);
-  renderTeam(); buildGrid();
-  if(selPerson&&!TEAM.find(m=>m.name===selPerson)){selPerson=null;chkBtn();}
-  setSB('saving');
-  try{await api('saveTeam',TEAM);setSB('live');}catch(e){setSB('err');}
-}
-function renderProjs() {
-  const el=document.getElementById('proj-list-mgmt'); if(!el)return;
-  el.innerHTML='';
-  if(!projects.length){el.innerHTML='<p class="hint">Nessun progetto.</p>';return;}
-  projects.forEach((p,i)=>{
-    const[bg,tc]=gc(p.group||p.name);
-    const div=document.createElement('div'); div.className='pmrow';
-    div.innerHTML=`<span class="badge" style="background:${bg};color:${tc}">${p.group||p.name}</span>
-      <span style="flex:1;font-size:13px;font-weight:500;margin-left:8px">${p.name}</span>
-      <button class="delbtn" onclick="delProj(${i})"><i class="ti ti-trash"></i></button>`;
-    el.appendChild(div);
-  });
-}
-async function addProj() {
-  const nEl=document.getElementById('new-proj-name');
-  const gEl=document.getElementById('new-proj-group');
-  if(!nEl||!gEl)return;
-  const name=nEl.value.trim(); if(!name)return;
-  const group=gEl.value.trim()||name;
-  projects.push({id:'p'+Date.now(),name,group});
-  nEl.value=''; gEl.value='';
-  renderProjs();
-  setSB('saving');
-  try{await api('saveProjects',projects);setSB('live');}catch(e){setSB('err');}
-}
-async function delProj(i) {
-  if(!confirm(`Eliminare "${projects[i].name}"?`))return;
-  projects.splice(i,1);
-  renderProjs();
-  setSB('saving');
-  try{await api('saveProjects',projects);setSB('live');}catch(e){setSB('err');}
-}
+    <!-- projects -->
+    <div id="a-projects" hidden>
+      <div class="card">
+        <div class="card-h"><h2>Nuovo progetto</h2></div>
+        <div class="formgrid">
+          <div class="field"><label>Nome progetto</label><input class="inp" id="pj-name" placeholder="es. Sito"></div>
+          <div class="field"><label>Gruppo</label><input class="inp" id="pj-group" list="group-list" placeholder="es. AESSEFIN (opzionale)"><datalist id="group-list"></datalist></div>
+          <div class="field"><label>Colore gruppo</label><select class="sel" id="pj-color" style="width:100%"></select></div>
+          <div class="field"><button class="btn primary" id="pj-add" style="width:100%"><i class="ti ti-plus"></i> Aggiungi</button></div>
+        </div>
+        <p class="hint" style="margin-top:10px">Il gruppo raggruppa i sotto-progetti (es. tutti i sotto-progetti di AESSEFIN). Se lasci vuoto, il gruppo è il nome stesso. Un gruppo esistente mantiene il suo colore.</p>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Progetti</h2><label class="hint" style="margin-left:auto;display:flex;gap:6px;align-items:center"><input type="checkbox" id="pj-showarch"> mostra archiviati</label></div>
+        <div id="projects-table"></div>
+      </div>
+    </div>
 
-// ── DASHBOARD ─────────────────────────────────────────
-function buildProjFilter() {
-  const sel=document.getElementById('f-proj'); if(!sel)return;
-  sel.innerHTML='<option value="">Tutti i progetti</option>';
-  projects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=(p.group&&p.group!==p.name?p.group+' – ':'')+p.name;sel.appendChild(o);});
-}
-function setTab(t) {
-  activeTab=t;
-  ['p','t','l'].forEach(x=>{const b=document.getElementById('tab-'+x);if(b)b.className='tab'+(x===t?' active':'');});
-  renderDash();
-}
-function getFiltered() {
-  let d=[...entries];
-  const m=(document.getElementById('f-month')||{}).value||'';
-  const p=(document.getElementById('f-person')||{}).value||'';
-  const pr=(document.getElementById('f-proj')||{}).value||'';
-  if(m)d=d.filter(r=>r.date.startsWith(m));
-  if(p)d=d.filter(r=>r.person===p);
-  if(pr)d=d.filter(r=>(r.hours[pr]||0)>0);
-  return d;
-}
-function renderDash() {
-  const data=getFiltered();
-  const el=document.getElementById('dash-body'); if(!el)return;
-  if(!data.length){el.innerHTML='<div class="empty"><i class="ti ti-clock-off" style="font-size:28px;display:block;margin-bottom:8px"></i>Nessuna ora inserita ancora.</div>';return;}
-  if(activeTab==='p'){
-    const tot={};projects.forEach(p=>{tot[p.id]=0;});
-    data.forEach(r=>projects.forEach(p=>{tot[p.id]+=(r.hours[p.id]||0);}));
-    const grand=Object.values(tot).reduce((a,b)=>a+b,0);
-    const rows=projects.map(p=>({...p,t:tot[p.id]})).filter(p=>p.t>0).sort((a,b)=>b.t-a.t);
-    el.innerHTML=`<div class="mets">
-      <div class="mc"><div class="ml">Ore totali</div><div class="mv">${grand.toFixed(1).replace('.0','')}</div></div>
-      <div class="mc"><div class="ml">Inserimenti</div><div class="mv">${data.length}</div></div>
-    </div>`+(rows.length?`<div class="twrap"><table><thead><tr><th>Progetto</th><th>Ore</th><th>%</th></tr></thead><tbody>${rows.map(p=>{const[bg,tc]=gc(p.group||p.name);return`<tr><td><span class="badge" style="background:${bg};color:${tc};margin-right:6px">${p.group||p.name}</span>${p.group&&p.group!==p.name?p.name:''}</td><td style="font-weight:700">${p.t.toFixed(1).replace('.0','')}h</td><td style="color:var(--p);font-weight:700">${grand>0?Math.round(p.t/grand*100):0}%</td></tr>`;}).join('')}</tbody></table></div>`:'');
-  } else if(activeTab==='t'){
-    const totT={};TEAM.forEach(t=>{totT[t.name]=0;});
-    data.forEach(r=>{totT[r.person]=(totT[r.person]||0)+Object.values(r.hours).reduce((a,b)=>a+b,0);});
-    const rows=TEAM.map(t=>({...t,tot:totT[t.name],days:data.filter(r=>r.person===t.name).length})).filter(t=>t.tot>0).sort((a,b)=>b.tot-a.tot);
-    el.innerHTML=rows.length?`<div class="twrap"><table><thead><tr><th>Persona</th><th>Ore totali</th><th>Media/gg</th></tr></thead><tbody>${rows.map(t=>`<tr><td><span style="display:inline-flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:50%;background:${t.bg};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${t.tc}">${t.name.slice(0,2).toUpperCase()}</span>${t.name}</span></td><td style="font-weight:700">${t.tot.toFixed(1).replace('.0','')}h</td><td style="color:var(--tm)">${t.days>0?(t.tot/t.days).toFixed(1):0}h</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nessun dato.</div>';
-  } else {
-    const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
-    el.innerHTML=`<div class="twrap"><table><thead><tr><th>Data</th><th>Chi</th><th>Progetti</th><th>Tot</th></tr></thead><tbody>${sorted.map(r=>{const tot=Object.values(r.hours).reduce((a,b)=>a+b,0);const tm=TEAM.find(t=>t.name===r.person)||{bg:'#F1EFE8',tc:'#444'};const badges=projects.filter(p=>(r.hours[p.id]||0)>0).map(p=>{const[bg,tc]=gc(p.group||p.name);return`<span class="badge" style="background:${bg};color:${tc};margin-right:3px">${p.group&&p.group!==p.name?p.name:(p.group||p.name)} ${r.hours[p.id]}h</span>`;}).join('');return`<tr><td style="white-space:nowrap;font-size:12px;color:var(--tm)">${fmt(r.date)}</td><td><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:50%;background:${tm.bg};display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${tm.tc}">${r.person.slice(0,2).toUpperCase()}</span>${r.person}</span></td><td>${badges||'—'}</td><td style="font-weight:700;white-space:nowrap">${tot.toFixed(1).replace('.0','')}h</td></tr>`;}).join('')}</tbody></table></div>`;
-  }
-}
+    <!-- export -->
+    <div id="a-export" hidden>
+      <div class="card">
+        <div class="card-h"><h2>Esporta CSV</h2></div>
+        <div class="formgrid">
+          <div class="field"><label>Dal</label><input type="date" class="inp" id="x-from"></div>
+          <div class="field"><label>Al</label><input type="date" class="inp" id="x-to"></div>
+          <div class="field"><label>Formato</label><select class="sel" id="x-fmt" style="width:100%"><option value="wide">Tabella (una colonna per progetto)</option><option value="long">Elenco (una riga per voce)</option></select></div>
+          <div class="field"><button class="btn primary" id="x-go" style="width:100%"><i class="ti ti-download"></i> Scarica</button></div>
+        </div>
+        <p class="hint" style="margin-top:10px">Esporta tutte le ore del team nel periodo scelto. Apribile con Excel o Google Sheets.</p>
+      </div>
+    </div>
+  </section>
+</div>
 
-// ── EXPORT ────────────────────────────────────────────
-function doExport() {
-  const rows=[['Data','Persona',...projects.map(p=>(p.group&&p.group!==p.name?p.group+' – ':'')+p.name),'Totale']];
-  [...entries].sort((a,b)=>a.date.localeCompare(b.date)).forEach(r=>{
-    const tot=Object.values(r.hours).reduce((a,b)=>a+b,0);
-    rows.push([r.date,r.person,...projects.map(p=>r.hours[p.id]||0),tot.toFixed(1)]);
-  });
-  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const url=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
-  const a=document.createElement('a');a.href=url;a.download='one_tech_ore.csv';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-}
+<div id="modal-root"></div>
 
-// ── UTILS ─────────────────────────────────────────────
-function fmt(d) {
-  if(!d)return'';
-  const[y,m,day]=d.split('-');
-  return`${parseInt(day)} ${['','Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'][parseInt(m)||0]} ${y}`;
-}
-
-// ── START ─────────────────────────────────────────────
-init().then(()=>{
-  const td=document.getElementById('inp-date');
-  if(td){td.value=new Date().toISOString().slice(0,10);td.addEventListener('change',chkBtn);}
-});
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>

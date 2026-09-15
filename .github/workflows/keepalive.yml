@@ -1,0 +1,27 @@
+# Keeps the free Supabase project from pausing (it pauses after 7 days without requests).
+# Runs every 3 days and sends one harmless read request using the public anon key from config.js.
+# Nothing to configure: it reads SUPABASE_URL and SUPABASE_ANON_KEY straight from config.js.
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "17 6 */3 * *"   # every 3 days at 06:17 UTC
+  workflow_dispatch:         # allows a manual run from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ping Supabase REST API
+        run: |
+          URL=$(grep -oP 'SUPABASE_URL:\s*"\K[^"]+' config.js)
+          KEY=$(grep -oP 'SUPABASE_ANON_KEY:\s*"\K[^"]+' config.js)
+          if [ -z "$URL" ] || [ -z "$KEY" ] || echo "$URL" | grep -q "YOUR-"; then
+            echo "config.js not filled in yet, skipping"; exit 0; fi
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+            "$URL/rest/v1/projects?select=id&limit=1")
+          echo "Supabase answered HTTP $code"
+          # 200 = ok, 401/403 = reached but not allowed (still counts as activity)
+          case "$code" in 200|401|403) exit 0 ;; *) exit 1 ;; esac
