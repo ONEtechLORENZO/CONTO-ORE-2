@@ -12,7 +12,7 @@ window.ONETECH_CONFIG = {
   AUTH_EMAIL_DOMAIN: "onetech.local",
 
   // Default password pattern for new employees: PREFIX + First initial + last initial
-  // e.g. Marat Yerkebayev -> 301301My
+  // e.g. Mario Rossi -> 301301Mr
   DEFAULT_PASSWORD_PREFIX: "301301",
 
   // Company name shown in the header

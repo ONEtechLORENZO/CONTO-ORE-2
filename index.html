@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>One Tech — Tracker Ore</title>
+<title>One Tech — Hours Tracker</title>
+<script>
+  // apply saved preferences before first paint (no theme flash)
+  (function () { var r = document.documentElement, l = 'en', t = 'light';
+    try { l = localStorage.getItem('ot_lang') === 'it' ? 'it' : 'en'; t = localStorage.getItem('ot_theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+    r.lang = l; r.setAttribute('data-theme', t); })();
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%236B52F5'/%3E%3Ctext x='16' y='21' font-size='14' font-weight='700' font-family='sans-serif' text-anchor='middle' fill='white'%3Eone%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,195 +18,389 @@
 </head>
 <body>
 
-<div class="overlay" id="overlay"><div class="spinner"></div><p id="overlay-msg">Caricamento...</p></div>
+<div class="overlay" id="overlay"><div class="spinner"></div><p id="overlay-msg" data-i18n="loading">Loading...</p></div>
 <div class="toasts" id="toasts"></div>
 
 <!-- ================= LOGIN ================= -->
 <div id="v-login" class="login-wrap" hidden>
-  <aside class="ls">
-    <div class="ls-top">
-      <div class="wm"><span class="wm-one">one</span><span class="wm-tech">tech</span></div>
-      <span class="ls-tag">Tracker ore</span>
-    </div>
-    <div class="ls-mid">
-      <h1 class="ls-h" id="login-greet">Buongiorno.</h1>
-      <p class="ls-p">Segna le ore di oggi e guarda dove va il tempo.<br>Ci vuole un minuto.</p>
-    </div>
-    <div class="ls-bot">
-      <span class="ls-date" id="login-date"></span>
-      <span class="ls-clock" id="login-clock"></span>
-    </div>
-  </aside>
-  <main class="lm">
-    <form class="lf" id="login-form" autocomplete="on" novalidate>
-      <p class="lf-kicker">Accesso</p>
-      <h2 class="lf-title">Entra con le credenziali del CRM</h2>
-      <div class="lf-err" id="login-err" hidden></div>
-      <label class="lf-field">
-        <span>Username</span>
-        <input id="login-user" name="username" placeholder="MARAT" autocapitalize="characters" autocomplete="username" spellcheck="false" required>
-      </label>
-      <label class="lf-field">
-        <span>Password</span>
-        <input id="login-pass" name="password" type="password" autocomplete="current-password" required>
-      </label>
-      <button class="lf-btn" id="login-btn" type="submit">Entra</button>
-      <p class="lf-foot">Password dimenticata? Chiedila a un amministratore.</p>
+  <div class="login-box">
+    <img class="login-logo" src="assets/logo-white.png" alt="One Tech" width="150">
+    <form class="lcard" id="login-form" autocomplete="on" novalidate>
+      <h1 data-i18n="loginTitle"></h1>
+      <p class="lc-sub" data-i18n="loginSub"></p>
+      <div class="lc-err" id="login-err" hidden></div>
+      <label class="lc-field" for="login-user" data-i18n="username"></label>
+      <input class="lc-inp" id="login-user" name="username" data-i18n-ph="usernamePh" autocapitalize="characters" autocomplete="username" spellcheck="false" required>
+      <label class="lc-field" for="login-pass" data-i18n="password"></label>
+      <div class="lc-pw">
+        <input class="lc-inp" id="login-pass" name="password" type="password" autocomplete="current-password" required>
+        <button type="button" class="lc-eye" id="login-eye" data-i18n-title="showPw"><i class="ti ti-eye"></i></button>
+      </div>
+      <button class="lc-btn" id="login-btn" type="submit" data-i18n="signIn"></button>
+      <p class="lc-foot" data-i18n="loginFoot"></p>
     </form>
-  </main>
+  </div>
 </div>
 
 <!-- ================= APP ================= -->
-<div id="v-app" class="shell" hidden>
-  <header class="topbar">
-    <div class="logo"><div class="logo-one">one</div><div class="logo-tech">TECH</div></div>
-    <span class="title">Tracker ore</span>
-    <nav class="nav" id="nav">
-      <button data-page="dash" class="active"><i class="ti ti-chart-bar"></i><span>Dashboard</span></button>
-      <button data-page="clock"><i class="ti ti-clock-hour-4"></i><span>Ore</span></button>
-      <button data-page="admin" id="nav-admin" hidden><i class="ti ti-settings"></i><span>Admin</span></button>
-    </nav>
-    <div class="userchip">
-      <div class="av" id="me-av">—</div>
-      <div><div class="name" id="me-name">—</div><div class="role" id="me-role">—</div></div>
-      <button class="iconbtn" id="btn-logout" title="Esci"><i class="ti ti-logout"></i></button>
+<div id="v-app" class="app" hidden>
+  <aside class="side">
+    <div class="side-top">
+      <img class="side-logo" src="assets/logo-white.png" alt="One Tech">
+      <span class="side-app" data-i18n="sideApp"></span>
     </div>
-  </header>
+    <div class="side-sec" id="side-sec" hidden><i class="ti ti-shield-lock"></i> <span data-i18n="adminArea"></span></div>
+    <nav class="side-nav" id="nav"></nav>
+    <div class="side-user-wrap">
+      <div class="umenu" id="umenu" hidden>
+        <button id="um-switch" hidden><i class="ti ti-switch-horizontal"></i><span id="um-switch-l"></span></button>
+        <button id="um-settings"><i class="ti ti-settings"></i><span data-i18n="settings"></span></button>
+        <button id="btn-logout"><i class="ti ti-logout"></i><span data-i18n="logout"></span></button>
+      </div>
+      <button class="side-user" id="side-user" data-i18n-title="menu">
+        <span class="av" id="me-av">—</span>
+        <span class="side-user-t"><span class="name" id="me-name">—</span><span class="role" id="me-role">—</span></span>
+        <i class="ti ti-chevron-up side-user-ch"></i>
+      </button>
+    </div>
+  </aside>
 
+  <main class="main">
   <!-- ---------- DASHBOARD ---------- -->
   <section id="p-dash" class="page active">
-    <div class="toolbar">
-      <div class="monthnav">
-        <button id="m-prev" title="Mese precedente"><i class="ti ti-chevron-left"></i></button>
-        <span id="m-label">—</span>
-        <button id="m-next" title="Mese successivo"><i class="ti ti-chevron-right"></i></button>
+    <header class="ph">
+      <div><h1 class="ph-title" id="dash-title">Dashboard</h1><p class="ph-sub" id="dash-sub"></p></div>
+      <div class="ph-tools">
+        <div class="per" id="d-per"></div>
+        <select class="sel" id="d-scope" hidden></select>
+        <button class="btn" id="d-csv"><i class="ti ti-download"></i> CSV</button>
       </div>
-      <button class="btn sm" id="m-today">Questo mese</button>
-      <select class="sel" id="d-scope" hidden></select>
-      <div style="margin-left:auto;display:flex;gap:8px">
-        <button class="btn sm" id="d-csv"><i class="ti ti-download"></i> CSV</button>
-      </div>
-    </div>
+    </header>
 
+    <div id="dash-alert" hidden></div>
     <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-h"><h2 id="c1-title"></h2><div class="legend" id="c1-legend"></div></div>
+      <div class="chartbox"><canvas id="chart-days"></canvas></div>
+    </div>
 
     <div class="grid2">
       <div class="card">
-        <div class="card-h"><h2 id="c1-title">Ore per giorno</h2></div>
-        <div class="chartbox"><canvas id="chart-days"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-h"><h2>Ore per progetto</h2></div>
+        <div class="card-h"><h2 data-i18n="byProject"></h2><span class="hint" id="proj-hint"></span></div>
         <div id="proj-bars"></div>
       </div>
+      <div class="card">
+        <div class="card-h"><h2 data-i18n="byGroup"></h2><span class="hint" id="group-hint"></span></div>
+        <div id="group-bars"></div>
+      </div>
+    </div>
+
+    <div class="card" id="teams-card" hidden>
+      <div class="card-h"><h2 data-i18n="byTeam"></h2><span class="hint" data-i18n="byTeamHint"></span></div>
+      <div id="teams-table"></div>
     </div>
 
     <div class="card" id="team-card" hidden>
-      <div class="card-h"><h2>Team</h2><span class="hint" id="team-hint"></span></div>
+      <div class="card-h"><h2 data-i18n="peopleTitle"></h2><span class="hint" id="team-hint"></span></div>
+      <div class="tfilters tf-left">
+        <input class="inp" id="tm-q" data-i18n-ph="searchPeople">
+        <select class="sel" id="tm-fcov"><option value="" data-i18n="allCoverage"></option><option value="miss" data-i18n="covMissing"></option><option value="ok" data-i18n="covComplete"></option><option value="none" data-i18n="covNone"></option></select>
+      </div>
       <div id="team-table"></div>
+      <div class="pager" id="team-pager" hidden></div>
     </div>
 
-    <div class="card">
-      <div class="card-h"><h2>Registro</h2><span class="hint" id="log-hint"></span></div>
+    <div class="card" id="log-card">
+      <div class="card-h"><h2 data-i18n="log"></h2><span class="hint" id="log-hint"></span></div>
+      <div class="tfilters tf-left" id="lg-filters">
+        <input class="inp" id="lg-q" data-i18n-ph="searchLog">
+        <select class="sel" id="lg-fperson"><option value=""></option></select>
+        <select class="sel" id="lg-fproj"><option value=""></option></select>
+      </div>
       <div id="log-table"></div>
+      <div class="pager" id="log-pager" hidden></div>
     </div>
   </section>
 
   <!-- ---------- CLOCKING ---------- -->
   <section id="p-clock" class="page">
+    <header class="ph">
+      <div><h1 class="ph-title" id="clock-title"></h1><p class="ph-sub" id="clock-sub"></p></div>
+      <div class="ph-tools"><select class="sel" id="c-person" hidden></select></div>
+    </header>
+
     <div class="card">
-      <div class="card-h">
-        <h2>Inserisci ore</h2>
-        <div class="right">
-          <select class="sel" id="c-person" hidden></select>
-        </div>
-      </div>
       <div class="daynav">
-        <button class="iconbtn" id="d-prev" title="Giorno precedente"><i class="ti ti-chevron-left"></i></button>
+        <button class="iconbtn" id="d-prev" data-i18n-title="prevDay"><i class="ti ti-chevron-left"></i></button>
         <input type="date" id="c-date">
-        <button class="iconbtn" id="d-next" title="Giorno successivo"><i class="ti ti-chevron-right"></i></button>
-        <button class="btn sm" id="d-today">Oggi</button>
+        <button class="iconbtn" id="d-next" data-i18n-title="nextDay"><i class="ti ti-chevron-right"></i></button>
+        <button class="btn sm" id="d-today" data-i18n="today"></button>
         <span class="daylabel" id="c-daylabel"></span>
       </div>
       <div class="week" id="week"></div>
-      <div id="plist"></div>
-      <div class="totbar"><span>Totale del giorno</span><strong id="totval">0h</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h2><span class="stepn">1</span> <span data-i18n="step1"></span></h2>
+        <span class="hint" id="pick-hint"></span>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2><span class="stepn">2</span> <span data-i18n="step2"></span></h2><span class="hint" id="cart-hint"></span></div>
+      <div id="cart"></div>
+      <div class="totbar"><span data-i18n="dayTotal"></span><strong id="totval">0h</strong></div>
       <div class="savebar">
-        <button class="btn primary" id="btn-save"><i class="ti ti-device-floppy"></i> Salva ore</button>
-        <button class="btn" id="btn-reset">Annulla modifiche</button>
+        <button class="btn primary" id="btn-save"><i class="ti ti-device-floppy"></i> <span data-i18n="saveHours"></span></button>
+        <button class="btn" id="btn-reset" data-i18n="discard"></button>
         <span class="status" id="save-status"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- PERSON (admin) ---------- -->
+  <section id="p-person" class="page">
+    <button class="btn sm" id="ps-back" style="margin-bottom:14px"><i class="ti ti-arrow-left"></i> <span data-i18n="navUsers"></span></button>
+    <header class="ph phead">
+      <div class="phead-l">
+        <span id="ps-av"></span>
+        <div>
+          <h1 class="ph-title" id="ps-name">—</h1>
+          <p class="ph-sub" id="ps-meta"></p>
+        </div>
+      </div>
+      <div class="ph-tools">
+        <div class="per" id="ps-per"></div>
+        <button class="btn" id="ps-csv"><i class="ti ti-download"></i> CSV</button>
+        <button class="btn" id="ps-pw"><i class="ti ti-key"></i> <span data-i18n="password"></span></button>
+        <button class="btn" id="ps-roles"><i class="ti ti-id-badge-2"></i> <span data-i18n="changeTeam"></span></button>
+        <button class="btn" id="ps-role"><i class="ti ti-user-up"></i> <span></span></button>
+        <button class="btn" id="ps-active"><i class="ti ti-user-off"></i> <span></span></button>
+        <button class="btn danger" id="ps-del"><i class="ti ti-trash"></i> <span data-i18n="delete"></span></button>
+      </div>
+    </header>
+    <div class="kpis kpis6" id="ps-kpis"></div>
+    <div class="card">
+      <div class="card-h"><h2 id="ps-chart-title"></h2><div class="legend" id="ps-legend"></div></div>
+      <div class="chartbox"><canvas id="ps-chart"></canvas></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-h"><h2 data-i18n="byProject"></h2><span class="hint" id="ps-proj-hint"></span></div><div id="ps-proj"></div></div>
+      <div class="card"><div class="card-h"><h2 data-i18n="byGroup"></h2><span class="hint" id="ps-group-hint"></span></div><div id="ps-group"></div></div>
+    </div>
+    <div class="card"><div class="card-h"><h2 data-i18n="monthByMonth"></h2><span class="hint" data-i18n="target8"></span></div><div id="ps-months"></div></div>
+    <div class="card"><div class="card-h"><h2 data-i18n="fullHistory"></h2><span class="hint" id="ps-log-hint"></span></div><div id="ps-log"></div></div>
+  </section>
+
+  <!-- ---------- PROJECT (admin) ---------- -->
+  <section id="p-project" class="page">
+    <button class="btn sm" id="pr-back" style="margin-bottom:14px"><i class="ti ti-arrow-left"></i> <span data-i18n="navProjects"></span></button>
+    <header class="ph phead">
+      <div class="phead-l">
+        <span id="pr-logo"></span>
+        <div>
+          <h1 class="ph-title" id="pr-name">—</h1>
+          <p class="ph-sub" id="pr-meta"></p>
+        </div>
+      </div>
+      <div class="ph-tools">
+        <div class="per" id="pr-per"></div>
+        <button class="btn" id="pr-csv"><i class="ti ti-download"></i> CSV</button>
+        <button class="btn" id="pr-logo-up"><i class="ti ti-photo-up"></i> <span></span></button>
+        <button class="btn" id="pr-logo-rm"><i class="ti ti-photo-off"></i> <span data-i18n="removeLogo"></span></button>
+        <button class="btn" id="pr-edit"><i class="ti ti-pencil"></i> <span data-i18n="edit"></span></button>
+        <button class="btn" id="pr-arch"><i class="ti ti-archive"></i> <span></span></button>
+        <button class="btn danger" id="pr-del"><i class="ti ti-trash"></i> <span data-i18n="delete"></span></button>
+      </div>
+    </header>
+    <div class="kpis kpis6" id="pr-kpis"></div>
+    <div class="card">
+      <div class="card-h"><h2 id="pr-chart-title"></h2><div class="legend" id="pr-legend"></div></div>
+      <div class="chartbox"><canvas id="pr-chart"></canvas></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-h"><h2 data-i18n="byPerson"></h2><span class="hint" id="pr-people-hint"></span></div><div id="pr-people"></div></div>
+      <div class="card"><div class="card-h"><h2 data-i18n="monthByMonth"></h2></div><div id="pr-months"></div></div>
+    </div>
+    <div class="card" id="pr-log-card">
+      <div class="card-h"><h2 data-i18n="fullHistory"></h2><span class="hint" id="pr-log-hint"></span></div>
+      <div class="tfilters tf-left" id="pr-filters">
+        <input class="inp" id="pr-q" data-i18n-ph="searchPersonDate">
+        <select class="sel" id="pr-fperson"><option value=""></option></select>
+        <select class="sel" id="pr-fday"><option value=""></option></select>
+      </div>
+      <div id="pr-log"></div>
+      <div class="pager" id="pr-log-pager" hidden></div>
+    </div>
+  </section>
+
+  <!-- ---------- SETTINGS ---------- -->
+  <section id="p-settings" class="page">
+    <header class="ph">
+      <div><h1 class="ph-title" data-i18n="settings"></h1><p class="ph-sub" data-i18n="settingsSub"></p></div>
+    </header>
+    <div class="card set-card">
+      <div class="set-h"><i class="ti ti-language"></i><div><h2 data-i18n="language"></h2><p class="hint" data-i18n="languageHint"></p></div></div>
+      <div class="optgrid" id="set-lang" role="radiogroup">
+        <button class="opt" data-lang="en" role="radio"><span class="opt-code">EN</span><span class="opt-t">English</span><i class="ti ti-circle-check-filled opt-ck"></i></button>
+        <button class="opt" data-lang="it" role="radio"><span class="opt-code">IT</span><span class="opt-t">Italiano</span><i class="ti ti-circle-check-filled opt-ck"></i></button>
+      </div>
+    </div>
+    <div class="card set-card">
+      <div class="set-h"><i class="ti ti-palette"></i><div><h2 data-i18n="appearance"></h2><p class="hint" data-i18n="themeHint"></p></div></div>
+      <div class="optgrid" id="set-theme" role="radiogroup">
+        <button class="opt opt-theme" data-theme-opt="light" role="radio">
+          <span class="swatch sw-light"><i></i><span><b></b><b></b></span></span>
+          <span class="opt-row"><span class="opt-t"><i class="ti ti-sun"></i> <span data-i18n="light"></span></span><i class="ti ti-circle-check-filled opt-ck"></i></span>
+        </button>
+        <button class="opt opt-theme" data-theme-opt="dark" role="radio">
+          <span class="swatch sw-dark"><i></i><span><b></b><b></b></span></span>
+          <span class="opt-row"><span class="opt-t"><i class="ti ti-moon"></i> <span data-i18n="dark"></span></span><i class="ti ti-circle-check-filled opt-ck"></i></span>
+        </button>
       </div>
     </div>
   </section>
 
   <!-- ---------- ADMIN ---------- -->
   <section id="p-admin" class="page">
-    <div class="toolbar">
-      <div class="tabs">
-        <button class="tab active" data-atab="users">Dipendenti</button>
-        <button class="tab" data-atab="projects">Progetti</button>
-        <button class="tab" data-atab="export">Export</button>
-      </div>
-    </div>
-
+    <header class="ph">
+      <div><h1 class="ph-title" id="admin-title"></h1><p class="ph-sub" id="admin-sub"></p></div>
+      <div class="ph-tools"><button class="btn primary" id="admin-new" hidden><i class="ti ti-plus"></i> <span id="admin-new-l"></span></button></div>
+    </header>
     <!-- users -->
     <div id="a-users">
       <div class="card">
-        <div class="card-h"><h2>Nuovo dipendente</h2></div>
-        <div class="formgrid">
-          <div class="field"><label>Nome completo</label><input class="inp" id="u-full" placeholder="es. Marat Yerkebayev"></div>
-          <div class="field"><label>Username</label><input class="inp" id="u-user" placeholder="MARAT" autocapitalize="characters"></div>
-          <div class="field"><label>Password iniziale</label><input class="inp pw" id="u-pass" placeholder="301301My"></div>
-          <div class="field"><label>Ruolo</label><select class="sel" id="u-role" style="width:100%"><option value="member">Staff</option><option value="admin">Admin</option></select></div>
-          <div class="field"><button class="btn primary" id="u-add" style="width:100%"><i class="ti ti-user-plus"></i> Aggiungi</button></div>
+        <div class="card-h"><h2 data-i18n="team"></h2></div>
+        <div class="tfilters tf-left">
+            <input class="inp" id="u-q" data-i18n-ph="searchUsers">
+            <select class="sel" id="u-frole"><option value="" data-i18n="allRoles"></option><option value="admin" data-i18n="roleAdmin"></option><option value="member" data-i18n="roleStaff"></option></select>
+            <select class="sel" id="u-fteam" hidden><option value=""></option></select>
+            <select class="sel" id="u-fstatus"><option value="active" data-i18n="statusActive"></option><option value="off" data-i18n="statusOff"></option><option value="" data-i18n="all"></option></select>
         </div>
-        <p class="hint" style="margin-top:10px">Username e password vengono proposti automaticamente dal nome (prefisso <b id="u-prefix"></b> + iniziali). Puoi modificarli prima di salvare.</p>
-      </div>
-      <div class="card">
-        <div class="card-h"><h2>Team</h2><span class="hint" id="users-hint"></span></div>
         <div id="users-table"></div>
+        <div class="pager" id="users-pager" hidden></div>
+      </div>
+    </div>
+    <div id="hold-user-form" hidden>
+      <div id="form-user">
+        <div class="field"><label data-i18n="fullName"></label><input class="inp" id="u-full" data-i18n-ph="fullNamePh"></div>
+        <div class="row2">
+          <div class="field"><label data-i18n="username"></label><input class="inp" id="u-user" placeholder="MARIO" autocapitalize="characters"></div>
+          <div class="field"><label data-i18n="initialPw"></label><input class="inp pw" id="u-pass" placeholder="301301Mr"></div>
+        </div>
+        <div class="field"><label data-i18n="role"></label><select class="sel" id="u-role" style="width:100%"><option value="member" data-i18n="roleStaff"></option><option value="admin" data-i18n="roleAdmin"></option></select></div>
+        <div class="field" id="u-roles-f"><label data-i18n="jobRoles"></label><div class="chips" id="u-roles"></div><p class="hint" data-i18n="pickRolesHint"></p></div>
+        <p class="hint"><span data-i18n="credHint1"></span><b id="u-prefix"></b><span data-i18n="credHint2"></span></p>
+        <div class="acts"><button class="btn" data-close data-i18n="cancel"></button><button class="btn primary" id="u-add"><i class="ti ti-user-plus"></i> <span data-i18n="add"></span></button></div>
+      </div>
+    </div>
+
+    <!-- roles (staff teams) -->
+    <div id="a-roles" hidden>
+      <div class="alert warn" id="roles-missing" hidden><i class="ti ti-database-exclamation ic"></i><span class="t" data-i18n="rolesMissing"></span></div>
+      <div class="card">
+        <div class="card-h"><h2 data-i18n="navRoles"></h2></div>
+        <div class="tfilters tf-left">
+            <input class="inp" id="r-q" data-i18n-ph="searchRoles">
+        </div>
+        <div id="roles-table"></div>
+        <div class="pager" id="roles-pager" hidden></div>
+      </div>
+    </div>
+    <div id="hold-role-form" hidden>
+      <div id="form-role">
+        <div class="field"><label data-i18n="roleName"></label><input class="inp" id="r-name" data-i18n-ph="roleNamePh"></div>
+        <div class="field"><label data-i18n="color"></label><div class="swatches" id="r-colors" role="radiogroup"></div></div>
+        <div class="field">
+          <label><span data-i18n="members"></span> · <span class="hint" id="r-mcount"></span></label>
+          <input class="inp" id="r-mq" data-i18n-ph="searchMembers" style="margin-bottom:8px">
+          <div class="chips pickbox" id="r-members"></div>
+        </div>
+        <div class="acts"><button class="btn" data-close data-i18n="cancel"></button><button class="btn primary" id="r-save"><i class="ti ti-check"></i> <span id="r-save-l"></span></button></div>
+      </div>
+      <div id="form-proles">
+        <div class="field"><label data-i18n="jobRoles"></label><div class="chips" id="pr-roles"></div><p class="hint" data-i18n="pickRolesHint"></p></div>
+        <div class="acts"><button class="btn" data-close data-i18n="cancel"></button><button class="btn primary" id="pr-save"><i class="ti ti-check"></i> <span data-i18n="save"></span></button></div>
+      </div>
+    </div>
+
+    <!-- groups -->
+    <div id="a-groups" hidden>
+      <div class="card">
+        <div class="card-h"><h2 data-i18n="navGroups"></h2></div>
+        <div class="tfilters tf-left">
+            <input class="inp" id="g-q" data-i18n-ph="searchGroups">
+        </div>
+        <div id="groups-table"></div>
+        <div class="pager" id="groups-pager" hidden></div>
+      </div>
+    </div>
+    <div id="hold-group-form" hidden>
+      <div id="form-group">
+        <div class="field"><label data-i18n="groupName"></label><input class="inp" id="g-name" data-i18n-ph="groupNamePh"></div>
+        <div class="field"><label data-i18n="color"></label><div class="swatches" id="g-colors" role="radiogroup"></div></div>
+        <div class="acts"><button class="btn" data-close data-i18n="cancel"></button><button class="btn primary" id="g-save"><i class="ti ti-check"></i> <span id="g-save-l"></span></button></div>
       </div>
     </div>
 
     <!-- projects -->
     <div id="a-projects" hidden>
       <div class="card">
-        <div class="card-h"><h2>Nuovo progetto</h2></div>
-        <div class="formgrid">
-          <div class="field"><label>Nome progetto</label><input class="inp" id="pj-name" placeholder="es. Sito"></div>
-          <div class="field"><label>Gruppo</label><input class="inp" id="pj-group" list="group-list" placeholder="es. AESSEFIN (opzionale)"><datalist id="group-list"></datalist></div>
-          <div class="field"><label>Colore gruppo</label><select class="sel" id="pj-color" style="width:100%"></select></div>
-          <div class="field"><button class="btn primary" id="pj-add" style="width:100%"><i class="ti ti-plus"></i> Aggiungi</button></div>
+        <div class="card-h"><h2 data-i18n="projects"></h2></div>
+        <div class="tfilters tf-left">
+            <input class="inp" id="pj-q" data-i18n-ph="searchProjects">
+            <select class="sel" id="pj-fgroup"><option value=""></option></select>
+            <select class="sel" id="pj-fstatus"><option value="active" data-i18n="statusActive"></option><option value="off" data-i18n="statusArchived"></option><option value="" data-i18n="all"></option></select>
         </div>
-        <p class="hint" style="margin-top:10px">Il gruppo raggruppa i sotto-progetti (es. tutti i sotto-progetti di AESSEFIN). Se lasci vuoto, il gruppo è il nome stesso. Un gruppo esistente mantiene il suo colore.</p>
-      </div>
-      <div class="card">
-        <div class="card-h"><h2>Progetti</h2><label class="hint" style="margin-left:auto;display:flex;gap:6px;align-items:center"><input type="checkbox" id="pj-showarch"> mostra archiviati</label></div>
         <div id="projects-table"></div>
+        <div class="pager" id="projects-pager" hidden></div>
       </div>
+    </div>
+    <div id="hold-proj-form" hidden>
+      <div id="form-proj">
+        <div class="field"><label data-i18n="projName"></label><input class="inp" id="pj-name" data-i18n-ph="projNamePh"></div>
+        <div class="field"><label data-i18n="group"></label>
+          <select class="sel" id="pj-group" style="width:100%"></select>
+          <input class="inp" id="pj-newgroup" data-i18n-ph="newGroupPh" style="margin-top:8px">
+        </div>
+        <div class="field"><label data-i18n="logoOpt"></label><input class="inp" type="file" id="pj-logo" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div>
+        <p class="hint" data-i18n="projHint"></p>
+        <div class="acts"><button class="btn" data-close data-i18n="cancel"></button><button class="btn primary" id="pj-add"><i class="ti ti-check"></i> <span id="pj-add-l"></span></button></div>
+      </div>
+      <input type="file" id="pj-logo-row" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
     </div>
 
     <!-- export -->
     <div id="a-export" hidden>
       <div class="card">
-        <div class="card-h"><h2>Esporta CSV</h2></div>
+        <div class="card-h"><h2 data-i18n="exportCsv"></h2></div>
         <div class="formgrid">
-          <div class="field"><label>Dal</label><input type="date" class="inp" id="x-from"></div>
-          <div class="field"><label>Al</label><input type="date" class="inp" id="x-to"></div>
-          <div class="field"><label>Formato</label><select class="sel" id="x-fmt" style="width:100%"><option value="wide">Tabella (una colonna per progetto)</option><option value="long">Elenco (una riga per voce)</option></select></div>
-          <div class="field"><button class="btn primary" id="x-go" style="width:100%"><i class="ti ti-download"></i> Scarica</button></div>
+          <div class="field"><label data-i18n="from"></label><input type="date" class="inp" id="x-from"></div>
+          <div class="field"><label data-i18n="to"></label><input type="date" class="inp" id="x-to"></div>
+          <div class="field"><label data-i18n="format"></label><select class="sel" id="x-fmt" style="width:100%"><option value="wide" data-i18n="fmtWide"></option><option value="long" data-i18n="fmtLong"></option></select></div>
         </div>
-        <p class="hint" style="margin-top:10px">Esporta tutte le ore del team nel periodo scelto. Apribile con Excel o Google Sheets.</p>
+        <div class="formgrid" style="margin-top:10px">
+          <div class="field"><label data-i18n="scope"></label><select class="sel" id="x-scope" style="width:100%"><option value="all" data-i18n="scopeAll"></option><option value="group" data-i18n="scopeGroup"></option><option value="project" data-i18n="scopeProject"></option><option value="person" data-i18n="scopePerson"></option></select></div>
+          <div class="field"><label id="x-item-l">&nbsp;</label><select class="sel" id="x-item" style="width:100%" disabled></select></div>
+          <div class="field"><button class="btn primary" id="x-go" style="width:100%"><i class="ti ti-download"></i> <span data-i18n="download"></span></button></div>
+        </div>
+        <p class="hint" style="margin-top:10px" data-i18n="exportHint"></p>
       </div>
     </div>
   </section>
+  </main>
 </div>
 
 <div id="modal-root"></div>
+<div id="fmodal" class="modal-bg" hidden><div class="modal wide"><h3 id="fmodal-title"></h3><div id="fmodal-slot"></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="config.js"></script>
+<script src="assets/i18n.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

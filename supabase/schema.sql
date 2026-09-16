@@ -22,11 +22,20 @@ create table if not exists public.profiles (
   created_at  timestamptz not null default now()
 );
 
+-- Project groups (e.g. AESSEFIN). projects.group_name references name:
+-- renaming a group cascades; a group in use cannot be deleted.
+create table if not exists public.project_groups (
+  name        text primary key,
+  color       text not null default '#2a78d6',            -- group colour (hex)
+  created_at  timestamptz not null default now()
+);
+
 create table if not exists public.projects (
   id          uuid primary key default gen_random_uuid(),
   name        text not null,
-  group_name  text not null,                              -- e.g. AESSEFIN
+  group_name  text not null references public.project_groups(name) on update cascade on delete restrict,
   color       text not null default '#2a78d6',            -- group colour (hex)
+  logo_url    text,                                       -- optional logo (Supabase Storage)
   active      boolean not null default true,
   sort_order  int  not null default 0,
   created_at  timestamptz not null default now(),
@@ -126,6 +135,7 @@ create trigger time_entries_touch
 -- ------------------------------------------------------------
 
 alter table public.profiles     enable row level security;
+alter table public.project_groups enable row level security;
 alter table public.projects     enable row level security;
 alter table public.time_entries enable row level security;
 
@@ -145,6 +155,23 @@ create policy "profiles_delete" on public.profiles
   for delete to authenticated
   using (public.is_admin());
 -- (no insert policy on purpose: rows are created by the trigger)
+
+-- project_groups -----------------------------------------------
+drop policy if exists "groups_select" on public.project_groups;
+create policy "groups_select" on public.project_groups
+  for select to authenticated using (public.is_active_user());
+
+drop policy if exists "groups_insert" on public.project_groups;
+create policy "groups_insert" on public.project_groups
+  for insert to authenticated with check (public.is_admin());
+
+drop policy if exists "groups_update" on public.project_groups;
+create policy "groups_update" on public.project_groups
+  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "groups_delete" on public.project_groups;
+create policy "groups_delete" on public.project_groups
+  for delete to authenticated using (public.is_admin());
 
 -- projects -----------------------------------------------------
 drop policy if exists "projects_select" on public.projects;
@@ -190,8 +217,62 @@ create policy "entries_delete" on public.time_entries
   using (public.is_active_user() and (user_id = auth.uid() or public.is_admin()));
 
 -- ------------------------------------------------------------
+-- STAFF ROLES (job roles / teams, separate from profiles.role;
+-- a person can have several). Same as migration 004.
+-- ------------------------------------------------------------
+create table if not exists public.staff_roles (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null unique,
+  color       text not null default '#2a78d6',
+  created_at  timestamptz not null default now()
+);
+create table if not exists public.profile_roles (
+  user_id     uuid not null references public.profiles(id) on delete cascade,
+  role_id     uuid not null references public.staff_roles(id) on delete cascade,
+  created_at  timestamptz not null default now(),
+  primary key (user_id, role_id)
+);
+create index if not exists profile_roles_role_idx on public.profile_roles (role_id);
+
+alter table public.staff_roles   enable row level security;
+alter table public.profile_roles enable row level security;
+
+drop policy if exists "staff_roles_select" on public.staff_roles;
+create policy "staff_roles_select" on public.staff_roles
+  for select to authenticated using (public.is_active_user());
+drop policy if exists "staff_roles_insert" on public.staff_roles;
+create policy "staff_roles_insert" on public.staff_roles
+  for insert to authenticated with check (public.is_admin());
+drop policy if exists "staff_roles_update" on public.staff_roles;
+create policy "staff_roles_update" on public.staff_roles
+  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "staff_roles_delete" on public.staff_roles;
+create policy "staff_roles_delete" on public.staff_roles
+  for delete to authenticated using (public.is_admin());
+
+drop policy if exists "profile_roles_select" on public.profile_roles;
+create policy "profile_roles_select" on public.profile_roles
+  for select to authenticated
+  using (public.is_active_user() and (user_id = auth.uid() or public.is_admin()));
+drop policy if exists "profile_roles_insert" on public.profile_roles;
+create policy "profile_roles_insert" on public.profile_roles
+  for insert to authenticated with check (public.is_admin());
+drop policy if exists "profile_roles_delete" on public.profile_roles;
+create policy "profile_roles_delete" on public.profile_roles
+  for delete to authenticated using (public.is_admin());
+
+insert into public.staff_roles (name, color) values
+  ('Management', '#eb6834'), ('AI Engineering', '#4a3aa7'), ('Software Engineering', '#2a78d6'),
+  ('Sales', '#1baf7a'), ('Marketing', '#e87ba4')
+on conflict (name) do nothing;
+
+-- ------------------------------------------------------------
 -- DEFAULT PROJECTS (same as the old tracker; safe to edit later)
 -- ------------------------------------------------------------
+insert into public.project_groups (name, color) values
+  ('ACTA', '#2a78d6'), ('AESSEFIN', '#eb6834'), ('PAUL E SHARK', '#1baf7a'), ('AWS GENERAL', '#eda100')
+on conflict (name) do nothing;
+
 insert into public.projects (name, group_name, color, sort_order) values
   ('ACTA',           'ACTA',          '#2a78d6', 10),
   ('Marketing',      'AESSEFIN',      '#eb6834', 20),
@@ -201,3 +282,18 @@ insert into public.projects (name, group_name, color, sort_order) values
   ('PAUL E SHARK',   'PAUL E SHARK',  '#1baf7a', 30),
   ('AWS GENERAL',    'AWS GENERAL',   '#eda100', 40)
 on conflict (group_name, name) do nothing;
+
+-- ------------------------------------------------------------
+-- PROJECT LOGOS (storage bucket, public read, admin write)
+-- ------------------------------------------------------------
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('project-logos', 'project-logos', true, 2097152, array['image/png','image/jpeg','image/webp','image/svg+xml'])
+on conflict (id) do nothing;
+drop policy if exists "logos_public_read"  on storage.objects;
+drop policy if exists "logos_admin_insert" on storage.objects;
+drop policy if exists "logos_admin_update" on storage.objects;
+drop policy if exists "logos_admin_delete" on storage.objects;
+create policy "logos_public_read"  on storage.objects for select using (bucket_id = 'project-logos');
+create policy "logos_admin_insert" on storage.objects for insert to authenticated with check (bucket_id = 'project-logos' and public.is_admin());
+create policy "logos_admin_update" on storage.objects for update to authenticated using (bucket_id = 'project-logos' and public.is_admin()) with check (bucket_id = 'project-logos' and public.is_admin());
+create policy "logos_admin_delete" on storage.objects for delete to authenticated using (bucket_id = 'project-logos' and public.is_admin());
