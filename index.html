@@ -146,6 +146,10 @@
         <h2><span class="stepn">1</span> <span data-i18n="step1"></span></h2>
         <span class="hint" id="pick-hint"></span>
       </div>
+      <div class="tfilters tf-left">
+        <input class="inp" id="pk-q" data-i18n-ph="searchProjects">
+        <select class="sel" id="pk-fgroup"><option value=""></option></select>
+      </div>
       <div class="pgrid" id="pgrid"></div>
     </div>
 
@@ -210,7 +214,7 @@
         <div class="per" id="pr-per"></div>
         <button class="btn" id="pr-csv"><i class="ti ti-download"></i> CSV</button>
         <button class="btn" id="pr-logo-up"><i class="ti ti-photo-up"></i> <span></span></button>
-        <button class="btn" id="pr-logo-rm"><i class="ti ti-photo-off"></i> <span data-i18n="removeLogo"></span></button>
+        <button class="btn" id="pr-logo-rm"><i class="ti ti-photo-off"></i> <span data-i18n="removeGroupLogo"></span></button>
         <button class="btn" id="pr-edit"><i class="ti ti-pencil"></i> <span data-i18n="edit"></span></button>
         <button class="btn" id="pr-arch"><i class="ti ti-archive"></i> <span></span></button>
         <button class="btn danger" id="pr-del"><i class="ti ti-trash"></i> <span data-i18n="delete"></span></button>
@@ -366,8 +370,8 @@
           <select class="sel" id="pj-group" style="width:100%"></select>
           <input class="inp" id="pj-newgroup" data-i18n-ph="newGroupPh" style="margin-top:8px">
         </div>
-        <div class="field"><label data-i18n="logoOpt"></label><input class="inp" type="file" id="pj-logo" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div>
-        <p class="hint" data-i18n="projHint"></p>
+                <p class="hint" data-i18n="projHint"></p>
+        <p class="hint" data-i18n="logoFromGroup"></p>
         <div class="acts"><button class="btn" data-close data-i18n="cancel"></button><button class="btn primary" id="pj-add"><i class="ti ti-check"></i> <span id="pj-add-l"></span></button></div>
       </div>
       <input type="file" id="pj-logo-row" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>

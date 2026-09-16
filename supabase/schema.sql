@@ -27,6 +27,7 @@ create table if not exists public.profiles (
 create table if not exists public.project_groups (
   name        text primary key,
   color       text not null default '#2a78d6',            -- group colour (hex)
+  logo_url    text,                                       -- optional group logo (Supabase Storage)
   created_at  timestamptz not null default now()
 );
 
@@ -35,7 +36,6 @@ create table if not exists public.projects (
   name        text not null,
   group_name  text not null references public.project_groups(name) on update cascade on delete restrict,
   color       text not null default '#2a78d6',            -- group colour (hex)
-  logo_url    text,                                       -- optional logo (Supabase Storage)
   active      boolean not null default true,
   sort_order  int  not null default 0,
   created_at  timestamptz not null default now(),

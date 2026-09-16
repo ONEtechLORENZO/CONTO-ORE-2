@@ -11,6 +11,12 @@ en: {
   lcMonths: false,
   dateLong: (wd, d, m, y) => `${wd}, ${d} ${m} ${y}`,
 
+  // group logos
+  uploadGroupLogo: "Upload group logo",
+  changeGroupLogo: "Change group logo",
+  removeGroupLogo: "Remove group logo",
+  removeGroupLogoBody: "Remove the logo of <b>{name}</b>? All its projects will show their coloured initials again.",
+  logoFromGroup: "Projects show the logo of their group. Set logos on the Groups page.",
   // team analytics
   teamsOpt: "Teams",
   peopleOpt: "People",
@@ -118,7 +124,7 @@ en: {
   legLogged: 'Hours logged', legWeekend: 'Weekend', legTarget: 'Target {h}h',
   nProjects_one: '{n} project', nProjects_other: '{n} projects',
   nGroups_one: '{n} group', nGroups_other: '{n} groups',
-  thPerson: 'Person', thHours: 'Hours', thDays: 'Days', thAvgDay: 'Avg/day', thCoverage: 'Coverage', thLastEntry: 'Last entry',
+  thPerson: 'Person', thHours: 'Hours', thTotHours: 'Total hours', thDays: 'Days', thAvgDay: 'Avg/day', thCoverage: 'Coverage', thLastEntry: 'Last entry',
   thTopProject: 'Top project', thDate: 'Date', thWho: 'Who', thProjects: 'Projects', thTot: 'Total', thDay: 'Day', thMonth: 'Month',
   thUsername: 'Username', thRole: 'Access', thStatus: 'Status', thLogo: 'Logo', thGroup: 'Group', thProject: 'Project',
   daysMissing_one: '{n} day missing', daysMissing_other: '{n} days missing', okBadge: 'ok',
@@ -192,6 +198,12 @@ it: {
   lcMonths: true,
   dateLong: (wd, d, m, y) => `${wd} ${d} ${m} ${y}`,
 
+  // group logos
+  uploadGroupLogo: "Carica logo del gruppo",
+  changeGroupLogo: "Cambia logo del gruppo",
+  removeGroupLogo: "Rimuovi logo del gruppo",
+  removeGroupLogoBody: "Rimuovere il logo di <b>{name}</b>? Tutti i suoi progetti mostreranno di nuovo le iniziali colorate.",
+  logoFromGroup: "I progetti mostrano il logo del loro gruppo. I loghi si impostano nella pagina Gruppi.",
   // team analytics
   teamsOpt: "Team",
   peopleOpt: "Persone",
@@ -299,7 +311,7 @@ it: {
   legLogged: 'Ore registrate', legWeekend: 'Weekend', legTarget: 'Obiettivo {h}h',
   nProjects_one: '{n} progetto', nProjects_other: '{n} progetti',
   nGroups_one: '{n} gruppo', nGroups_other: '{n} gruppi',
-  thPerson: 'Persona', thHours: 'Ore', thDays: 'Giorni', thAvgDay: 'Media/gg', thCoverage: 'Copertura', thLastEntry: 'Ultimo inserimento',
+  thPerson: 'Persona', thHours: 'Ore', thTotHours: 'Ore totali', thDays: 'Giorni', thAvgDay: 'Media/gg', thCoverage: 'Copertura', thLastEntry: 'Ultimo inserimento',
   thTopProject: 'Progetto principale', thDate: 'Data', thWho: 'Chi', thProjects: 'Progetti', thTot: 'Tot', thDay: 'Giorno', thMonth: 'Mese',
   thUsername: 'Username', thRole: 'Accesso', thStatus: 'Stato', thLogo: 'Logo', thGroup: 'Gruppo', thProject: 'Progetto',
   daysMissing_one: '{n} gg mancante', daysMissing_other: '{n} gg mancanti', okBadge: 'ok',

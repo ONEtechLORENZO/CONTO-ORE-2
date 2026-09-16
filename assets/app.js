@@ -219,9 +219,9 @@ async function loadGroups() {
 }
 function allGroups() {
   const map = new Map();
-  S.groupRows.forEach(g => map.set(g.name, { name: g.name, color: g.color, projects: [] }));
+  S.groupRows.forEach(g => map.set(g.name, { name: g.name, color: g.color, logo_url: g.logo_url || '', projects: [] }));
   S.projects.forEach(p => {
-    if (!map.has(p.group_name)) map.set(p.group_name, { name: p.group_name, color: p.color, projects: [] });
+    if (!map.has(p.group_name)) map.set(p.group_name, { name: p.group_name, color: p.color, logo_url: '', projects: [] });
     map.get(p.group_name).projects.push(p);
   });
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
@@ -836,15 +836,23 @@ async function loadClock() {
 // ---- step 1: picker grid
 const patOf = (name) => { let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 6; };
 function renderPicker() {
-  const list = S.projects.filter(p => p.active || S.cart.has(p.id));
+  const avail = S.projects.filter(p => p.active || S.cart.has(p.id));
+  // group dropdown lists only groups that have pickable projects
+  const fg = $('pk-fgroup'), cur = fg.value;
+  const groups = [...new Set(avail.map(p => p.group_name))].sort((a, b) => a.localeCompare(b));
+  fg.innerHTML = `<option value="">${esc(t('allGroups'))}</option>` + groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+  fg.value = groups.includes(cur) ? cur : '';
+  const q = ($('pk-q').value || '').trim().toLowerCase();
+  const list = avail.filter(p => (!fg.value || p.group_name === fg.value) && (!q || p.name.toLowerCase().includes(q) || p.group_name.toLowerCase().includes(q)));
   $('pick-hint').textContent = S.cart.size ? tp('nSelected', S.cart.size) : t('pickHint');
   $('pgrid').innerHTML = list.length ? list.map(p => { const on = S.cart.has(p.id); const h = S.hrs[p.id] || 0;
     return `<button class="pcard${on ? ' sel' : ''}" style="--c:${esc(p.color)}" data-id="${p.id}" title="${esc(t(on ? 'removeX' : 'addX', { name: p.name }))}">
-      <span class="pc-img pat${patOf(p.name)}${p.logo_url ? ' haslogo' : ''}">${logoHtml(p)}<span class="mono">${esc(mono(p.name))}</span><span class="pc-add"><i class="ti ${on ? 'ti-check' : 'ti-plus'}"></i></span></span>
+      <span class="pc-img pat${patOf(p.name)}${groupLogo(p.group_name) ? ' haslogo' : ''}">${logoHtml(p)}<span class="mono">${esc(mono(p.name))}</span><span class="pc-add"><i class="ti ${on ? 'ti-check' : 'ti-plus'}"></i></span></span>
       <span class="pc-t"><span class="pc-n">${esc(p.name)}</span><span class="pc-g">${esc(p.group_name !== p.name ? p.group_name : (p.active ? '' : t('archived')))}</span><span class="pc-h" id="pch-${p.id}">${esc(h ? t('hoursLogged', { h: fh(h) }) : t('added'))}</span></span>
-    </button>`; }).join('') : `<div class="empty" style="grid-column:1/-1"><i class="ti ti-folder-off"></i>${esc(t('noActiveProjects'))}</div>`;
+    </button>`; }).join('') : `<div class="empty" style="grid-column:1/-1"><i class="ti ti-folder-off"></i>${esc(avail.length ? t('noProjMatch') : t('noActiveProjects'))}</div>`;
   $('pgrid').querySelectorAll('.pcard').forEach(b => b.onclick = () => togglePick(b.dataset.id));
 }
+['pk-q', 'pk-fgroup'].forEach(id => $(id).addEventListener('input', renderPicker));
 function togglePick(id) {
   if (S.cart.has(id)) { S.cart.delete(id); S.hrs[id] = 0; renderPicker(); renderCart(); return; }
   S.cart.add(id);
@@ -860,7 +868,7 @@ function renderCart() {
   $('cart-hint').textContent = ids.length ? tp('nProjects', ids.length) : '';
   $('cart').innerHTML = ids.length ? ids.map(id => { const p = projById(id); const h = S.hrs[id] || 0;
     return `<div class="crow" id="row-${id}" style="--c:${esc(p.color)}">
-      <span class="mono${p.logo_url ? ' haslogo' : ''}">${p.logo_url ? logoHtml(p) : esc(mono(p.name))}</span>
+      <span class="mono${groupLogo(p.group_name) ? ' haslogo' : ''}">${groupLogo(p.group_name) ? logoHtml(p) : esc(mono(p.name))}</span>
       <div><div class="cn">${esc(p.name)}</div><div class="cg">${esc(p.group_name !== p.name ? p.group_name : '')}</div></div>
       <div class="quick">${QUICK.map(q => `<button data-q="${id}|${q}" class="${h === q ? 'on' : ''}">${q}h</button>`).join('')}</div>
       <div class="hc"><button class="hbtn" data-ch="${id}|-0.5" title="-30 min">−</button><input class="hval" id="hv-${id}" type="number" inputmode="decimal" min="0" max="24" step="0.25" value="${fnum(h)}" data-id="${id}"><button class="hbtn" data-ch="${id}|0.5" title="+30 min">+</button></div>
@@ -1012,15 +1020,15 @@ function renderPersonBody() {
 function openProject(id) { S.projectId = id; goPage('project'); }
 $('pr-back').onclick = () => goPage('projects');
 $('pr-csv').onclick = () => { const [f, to] = projectRange(); exportCsv(f, to, 'long', { kind: 'project', id: S.projectId }); };
-$('pr-logo-up').onclick = () => projectAction('logo', S.projectId);
-$('pr-logo-rm').onclick = () => projectAction('logorm', S.projectId);
+$('pr-logo-up').onclick = () => { const p = projById(S.projectId); if (p) groupLogoAction(p.group_name, 'up'); };
+$('pr-logo-rm').onclick = () => { const p = projById(S.projectId); if (p) groupLogoAction(p.group_name, 'rm'); };
 $('pr-edit').onclick = () => projectAction('ren', S.projectId);
 $('pr-arch').onclick = () => projectAction('arch', S.projectId);
 $('pr-del').onclick = () => projectAction('del', S.projectId);
 function projectRange() { return periodRange(S.prper, S.projectRows.length ? S.projectRows[0].entry_date : null); }
 S.buildPrper = periodPicker('pr-per', S.prper, projectRange, () => renderProjectBody(), true);
-const projLogoHtml = (p) => p.logo_url
-  ? `<img class="pr-logo" src="${esc(p.logo_url)}" alt="">`
+const projLogoHtml = (p) => groupLogo(p.group_name)
+  ? `<img class="pr-logo" src="${esc(groupLogo(p.group_name))}" alt="">`
   : `<span class="pr-logo mono" style="color:${esc(p.color)};background:color-mix(in srgb,${esc(p.color)} 14%,var(--bg))">${esc(mono(p.name))}</span>`;
 // header only (cheap): used after edits so the page reflects the new name / group / logo
 function renderProjectHead() {
@@ -1028,8 +1036,8 @@ function renderProjectHead() {
   $('pr-logo').innerHTML = projLogoHtml(p);
   $('pr-name').textContent = p.name;
   $('pr-meta').innerHTML = `<span class="badge grp" style="--c:${esc(p.color)}">${esc(p.group_name)}</span> <span class="badge ${p.active ? 'on' : 'off'}">${p.active ? t('active') : t('archived')}</span>`;
-  $('pr-logo-up').querySelector('span').textContent = p.logo_url ? t('changeLogo') : t('uploadLogo');
-  $('pr-logo-rm').hidden = !p.logo_url;
+  $('pr-logo-up').querySelector('span').textContent = groupLogo(p.group_name) ? t('changeGroupLogo') : t('uploadGroupLogo');
+  $('pr-logo-rm').hidden = !groupLogo(p.group_name);
   $('pr-arch').querySelector('span').textContent = p.active ? t('archive') : t('restore');
   $('pr-arch').querySelector('i').className = 'ti ' + (p.active ? 'ti-archive' : 'ti-archive-off');
   return true;
@@ -1121,9 +1129,20 @@ function renderProjectLog() {
 ['pr-q', 'pr-fperson', 'pr-fday'].forEach(id => $(id).addEventListener('input', () => { S.projectLogPage = 1; renderProjectLog(); }));
 
 async function renderAdmin() {
-  await Promise.all([loadProfiles(), loadProjects(), loadGroups(), loadRoles()]);
+  await Promise.all([loadProfiles(), loadProjects(), loadGroups(), loadRoles(), S.adminPage === 'projects' ? loadProjectHours() : null]);
   buildScopeSelects();
   renderUsers(); renderRoles(); renderGroups(); renderProjects(); renderExport();
+}
+// all-time hours per project id (only project_id + hours, paged past the 1000-row cap)
+async function loadProjectHours() {
+  const tot = {}, PAGE = 1000;
+  for (let off = 0; ; off += PAGE) {
+    const { data, error } = await sb.from('time_entries').select('project_id,hours').order('id').range(off, off + PAGE - 1);
+    if (error) { toast(errMsg(error), 'err'); break; }
+    for (const r of data || []) tot[r.project_id] = (tot[r.project_id] || 0) + Number(r.hours);
+    if (!data || data.length < PAGE) break;
+  }
+  S.projHours = tot;
 }
 async function adminFn(payload) {
   const { data, error } = await sb.functions.invoke('admin-users', { body: payload });
@@ -1277,6 +1296,9 @@ async function userAction(act, id) {
 
 // ---- projects
 const LOGO_BUCKET = 'project-logos';
+// logos belong to groups; every project shows the logo of its group
+const groupLogo = (name) => ((S.groupRows || []).find(g => g.name === name) || {}).logo_url || '';
+const logoPathOf = (url) => { const m = String(url || '').split('?')[0].match(/\/project-logos\/(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
 function pickColor() {
   // least-used palette colour among existing groups, random among ties
   const used = {}; allGroups().forEach(g => { used[g.color] = (used[g.color] || 0) + 1; });
@@ -1293,18 +1315,47 @@ function shrinkImage(file, max = 480) {
     img.src = url;
   });
 }
-async function uploadLogo(projectId, file) {
+async function uploadGroupLogo(groupName, file) {
+  const g = await ensureGroup(groupName);
+  if (!S.groupsTable) throw new Error(t('errGroupsTable'));
   const blob = await shrinkImage(file);
-  const ext = file.type === 'image/svg+xml' ? 'svg' : 'png';
-  const path = `${projectId}.${ext}`;
-  const { error } = await sb.storage.from(LOGO_BUCKET).upload(path, blob, { upsert: true, contentType: file.type === 'image/svg+xml' ? 'image/svg+xml' : 'image/png', cacheControl: '3600' });
+  const svg = file.type === 'image/svg+xml';
+  const slug = g.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'group';
+  const path = `groups/${slug}-${Date.now()}.${svg ? 'svg' : 'png'}`;
+  const { error } = await sb.storage.from(LOGO_BUCKET).upload(path, blob, { upsert: false, contentType: svg ? 'image/svg+xml' : 'image/png', cacheControl: '31536000' });
   if (error) throw new Error(/bucket/i.test(error.message) ? t('errBucket') : error.message);
-  const url = sb.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl + '?v=' + Date.now();
-  const { error: e2 } = await sb.from('projects').update({ logo_url: url }).eq('id', projectId);
-  if (e2) throw e2;
+  const url = sb.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl;
+  const old = logoPathOf(groupLogo(g.name));
+  const { error: e2 } = await sb.from('project_groups').update({ logo_url: url }).eq('name', g.name);
+  if (e2) { await sb.storage.from(LOGO_BUCKET).remove([path]); throw e2; }
+  if (old && old !== path) await sb.storage.from(LOGO_BUCKET).remove([old]);
   return url;
 }
-const logoHtml = (p, cls = '') => p.logo_url ? `<img class="${cls}" src="${esc(p.logo_url)}" alt="">` : '';
+async function removeGroupLogo(groupName) {
+  const old = logoPathOf(groupLogo(groupName));
+  const { error } = await sb.from('project_groups').update({ logo_url: null }).eq('name', groupName);
+  if (error) throw error;
+  if (old) await sb.storage.from(LOGO_BUCKET).remove([old]);
+}
+async function afterLogoChange() {
+  await loadGroups();
+  renderGroups(); renderProjects();
+  if (S.page === 'project') renderProjectHead();
+  if (S.page === 'clock') { renderPicker(); renderCart(); }
+}
+async function groupLogoAction(groupName, act) {
+  try {
+    if (act === 'up') {
+      const inp = $('pj-logo-row'); inp.value = '';
+      inp.onchange = async () => { const f = inp.files[0]; if (!f) return; try { overlay(true, t('uploadingLogo')); await uploadGroupLogo(groupName, f); overlay(false); toast(t('logoUpdated'), 'ok'); await afterLogoChange(); } catch (e) { overlay(false); toast(errMsg(e), 'err'); } };
+      inp.click();
+    } else if (act === 'rm') {
+      if (!(await confirm(t('removeGroupLogo'), t('removeGroupLogoBody', { name: esc(groupName) }), t('remove')))) return;
+      await removeGroupLogo(groupName); toast(t('logoRemoved'), 'ok'); await afterLogoChange();
+    }
+  } catch (e) { overlay(false); toast(errMsg(e), 'err'); }
+}
+const logoHtml = (p, cls = '') => { const u = groupLogo(p.group_name); return u ? `<img class="${cls}" src="${esc(u)}" alt="">` : ''; };
 // make sure a group row exists (creates it when new); returns { name, color }
 async function ensureGroup(rawName) {
   const ex = groupByName(rawName);
@@ -1330,7 +1381,7 @@ function fillGroupSelect(selected) {
 $('pj-group').onchange = () => { const isNew = $('pj-group').value === NEW_GROUP; $('pj-newgroup').hidden = !isNew; if (isNew) $('pj-newgroup').focus(); };
 function openProjForm(p, group) {
   S.editProj = p ? p.id : null;
-  $('pj-name').value = p ? p.name : ''; $('pj-logo').value = '';
+  $('pj-name').value = p ? p.name : '';
   fillGroupSelect(p ? p.group_name : group);
   $('pj-add-l').textContent = p ? t('save') : t('add');
   openForm('proj', p ? t('editProj') : t('newProject'));
@@ -1355,8 +1406,6 @@ $('pj-add').onclick = async () => {
       const { data, error } = await sb.from('projects').insert(fields).select('id').single(); if (error) throw error;
       id = data.id;
     }
-    const f = $('pj-logo').files[0];
-    if (f) { overlay(true, t('uploadingLogo')); await uploadLogo(id, f); overlay(false); }
     closeForm(); await Promise.all([loadProjects(), loadGroups()]); renderProjects(); renderGroups();
     if (S.page === 'project') renderProjectHead();
     toast(editing ? t('projSaved') : t('projAdded'), 'ok');
@@ -1406,15 +1455,18 @@ function renderGroups() {
   if (S.groupsPage > pages) S.groupsPage = pages;
   const slice = list.slice((S.groupsPage - 1) * PER_PAGE, S.groupsPage * PER_PAGE);
   const MAXP = 4;
-  $('groups-table').innerHTML = slice.length ? `<div class="twrap"><table><thead><tr><th>${t('thGroup')}</th><th>${t('thProjects')}</th><th></th></tr></thead><tbody>${slice.map(g => {
+  $('groups-table').innerHTML = slice.length ? `<div class="twrap"><table><thead><tr><th>${t('thLogo')}</th><th>${t('thGroup')}</th><th>${t('thProjects')}</th><th></th></tr></thead><tbody>${slice.map(g => {
     const chips = g.projects.slice(0, MAXP).map(p => `<span class="pchip${p.active ? '' : ' off'}">${esc(p.name)}</span>`).join('') + (g.projects.length > MAXP ? `<span class="pchip more">+${g.projects.length - MAXP}</span>` : '');
     const inUse = g.projects.length > 0;
     return `<tr>
+      <td>${g.logo_url ? `<img class="plogo" src="${esc(g.logo_url)}" alt="">` : `<span class="mono plogo" style="display:inline-flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;color:${esc(g.color)};background:color-mix(in srgb,${esc(g.color)} 14%,var(--bg));border:0">${esc(mono(g.name))}</span>`}</td>
       <td><button class="linkname" data-gview="${esc(g.name)}"><span class="gdot" style="--c:${esc(g.color)}"></span>${esc(g.name)}</button></td>
       <td>${chips || `<span class="mute">${esc(t('noProjectsYet'))}</span>`}</td>
       <td class="actions">
         <button class="iconbtn" title="${esc(t('exportCsv'))}" data-gcsv="${esc(g.name)}" ${inUse ? '' : 'disabled'}><i class="ti ti-file-download"></i></button>
         <button class="iconbtn" title="${esc(t('newProject'))}" data-gadd="${esc(g.name)}"><i class="ti ti-folder-plus"></i></button>
+        <button class="iconbtn" title="${esc(g.logo_url ? t('changeGroupLogo') : t('uploadGroupLogo'))}" data-glogo="${esc(g.name)}"><i class="ti ti-photo-up"></i></button>
+        ${g.logo_url ? `<button class="iconbtn" title="${esc(t('removeGroupLogo'))}" data-glogorm="${esc(g.name)}"><i class="ti ti-photo-off"></i></button>` : ''}
         <button class="iconbtn" title="${esc(t('editGroup'))}" data-gedit="${esc(g.name)}"><i class="ti ti-pencil"></i></button>
         <button class="iconbtn danger" title="${esc(inUse ? t('groupInUse') : t('deleteGroup'))}" data-gdel="${esc(g.name)}" ${inUse ? 'disabled' : ''}><i class="ti ti-trash"></i></button>
       </td></tr>`;
@@ -1424,6 +1476,8 @@ function renderGroups() {
   tb.querySelectorAll('[data-gcsv]').forEach(b => b.onclick = () => exportFor('group', b.dataset.gcsv));
   tb.querySelectorAll('[data-gadd]').forEach(b => b.onclick = () => openProjForm(null, b.dataset.gadd));
   tb.querySelectorAll('[data-gedit]').forEach(b => b.onclick = () => openGroupForm(byName(b.dataset.gedit)));
+  tb.querySelectorAll('[data-glogo]').forEach(b => b.onclick = () => groupLogoAction(b.dataset.glogo, 'up'));
+  tb.querySelectorAll('[data-glogorm]').forEach(b => b.onclick = () => groupLogoAction(b.dataset.glogorm, 'rm'));
   tb.querySelectorAll('[data-gdel]').forEach(b => b.onclick = () => deleteGroup(b.dataset.gdel));
   pager('groups-pager', list.length, S.groupsPage, (n) => { S.groupsPage = n; renderGroups(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
@@ -1575,10 +1629,11 @@ function renderProjects() {
   const ppages = Math.max(1, Math.ceil(list.length / PER_PAGE));
   if (S.projectsPage > ppages) S.projectsPage = ppages;
   const pslice = list.slice((S.projectsPage - 1) * PER_PAGE, S.projectsPage * PER_PAGE);
-  $('projects-table').innerHTML = pslice.length ? `<div class="twrap"><table><thead><tr><th>${t('thLogo')}</th><th>${t('thGroup')}</th><th>${t('thProject')}</th><th>${t('thStatus')}</th><th></th></tr></thead><tbody>${pslice.map(p => `<tr style="${p.active ? '' : 'opacity:.6'}">
-    <td>${p.logo_url ? logoHtml(p, 'plogo') : `<span class="mono plogo" style="display:inline-flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;color:${esc(p.color)};background:color-mix(in srgb,${esc(p.color)} 14%,var(--bg));border:0">${esc(mono(p.name))}</span>`}</td>
+  $('projects-table').innerHTML = pslice.length ? `<div class="twrap"><table><thead><tr><th>${t('thLogo')}</th><th>${t('thGroup')}</th><th>${t('thProject')}</th><th class="num">${t('thTotHours')}</th><th>${t('thStatus')}</th><th></th></tr></thead><tbody>${pslice.map(p => `<tr style="${p.active ? '' : 'opacity:.6'}">
+    <td>${groupLogo(p.group_name) ? logoHtml(p, 'plogo') : `<span class="mono plogo" style="display:inline-flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;color:${esc(p.color)};background:color-mix(in srgb,${esc(p.color)} 14%,var(--bg));border:0">${esc(mono(p.name))}</span>`}</td>
     <td><span class="badge grp" style="--c:${esc(p.color)}">${esc(p.group_name)}</span></td>
     <td><button class="linkname" data-popen="${p.id}">${esc(p.name)}</button></td>
+    <td class="num b">${!S.projHours ? '<span class="mute">…</span>' : S.projHours[p.id] ? fh(S.projHours[p.id]) : '<span class="mute">—</span>'}</td>
     <td><span class="badge ${p.active ? 'on' : 'off'}">${p.active ? t('active') : t('archived')}</span></td>
     <td class="actions"><button class="btn sm" data-popen="${p.id}">${esc(t('open'))} <i class="ti ti-chevron-right"></i></button></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty"><i class="ti ti-folder-off"></i>${esc(t('noProjMatch'))}</div>`;
   $('projects-table').querySelectorAll('[data-popen]').forEach(b => b.onclick = () => openProject(b.dataset.popen));
@@ -1589,16 +1644,9 @@ async function projectAction(act, id) {
   try {
     if (act === 'ren') return openProjForm(p);
     if (act === 'csv') return exportFor('project', id);
-    if (act === 'logo') {
-      const inp = $('pj-logo-row'); inp.value = '';
-      inp.onchange = async () => { const f = inp.files[0]; if (!f) return; try { overlay(true, t('uploadingLogo')); await uploadLogo(id, f); overlay(false); toast(t('logoUpdated'), 'ok'); await loadProjects(); renderProjects(); if (S.page === 'project') renderProjectHead(); } catch (e) { overlay(false); toast(errMsg(e), 'err'); } };
-      inp.click(); return;
-    } else if (act === 'logorm') {
-      if (!(await confirm(t('removeLogo'), t('removeLogoBody', { name: esc(p.name) }), t('remove')))) return;
-      await sb.storage.from(LOGO_BUCKET).remove([`${id}.png`, `${id}.svg`]);
-      const { error } = await sb.from('projects').update({ logo_url: null }).eq('id', id); if (error) throw error;
-      toast(t('logoRemoved'), 'ok');
-    } else if (act === 'arch') {
+    if (act === 'logo') return groupLogoAction(p.group_name, 'up');
+    if (act === 'logorm') return groupLogoAction(p.group_name, 'rm');
+    if (act === 'arch') {
       const { error } = await sb.from('projects').update({ active: !p.active }).eq('id', id); if (error) throw error;
       toast(p.active ? t('projArchived') : t('projRestored'), 'ok');
     } else if (act === 'del') {
